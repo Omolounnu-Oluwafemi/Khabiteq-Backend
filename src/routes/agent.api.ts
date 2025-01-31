@@ -79,6 +79,16 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
+router.post('/upload/image', async (req: Request & { file?: any }, res: Response, next: NextFunction) => {
+  try {
+    const { image } = req.body;
+    console.log(req?.file);
+    const response = await agentControl.uploadImage(image);
+    return res.status(HttpStatusCodes.OK).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
 /******************************************************************************
  *                      add user - "POST /api/auth/register"
  ******************************************************************************/

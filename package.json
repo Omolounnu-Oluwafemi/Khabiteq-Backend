@@ -25,7 +25,9 @@
     "@server": "dist/Server"
   },
   "dependencies": {
+    "@types/multer": "^1.4.12",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^8.6.0",
     "express": "^4.21.2",
@@ -35,6 +37,7 @@
     "joi-password": "^4.2.0",
     "mongoose": "^5.13.23",
     "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0"

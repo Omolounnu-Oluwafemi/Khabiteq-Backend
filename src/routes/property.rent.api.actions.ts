@@ -38,8 +38,17 @@ router.get('/rent/:_id', async (req: Request, res: Response, next: NextFunction)
 
 router.post('/rent/new', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { propertyType, propertyCondition, location, rentalPrice, noOfBedrooms, features, tenantCriteria, owner } =
-      validator.validate(req.body, 'propertyRentSchema');
+    const {
+      propertyType,
+      propertyCondition,
+      location,
+      rentalPrice,
+      noOfBedrooms,
+      features,
+      tenantCriteria,
+      owner,
+      areYouTheOwner,
+    } = validator.validate(req.body, 'propertyRentSchema');
 
     const response = await propertyRentControl.add({
       propertyType,
@@ -50,6 +59,7 @@ router.post('/rent/new', async (req: Request, res: Response, next: NextFunction)
       features,
       tenantCriteria,
       owner,
+      areYouTheOwner,
     });
     return res.status(HttpStatusCodes.CREATED).json(response);
   } catch (error) {
@@ -67,8 +77,17 @@ router.put('/rent/update/:_id', async (req: Request, res: Response, next: NextFu
     if (!_id) {
       return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: 'Property ID is required' });
     }
-    const { propertyType, propertyCondition, location, rentalPrice, noOfBedrooms, features, tenantCriteria, owner } =
-      validator.validate(req.body, 'propertyRentSchema');
+    const {
+      propertyType,
+      propertyCondition,
+      location,
+      rentalPrice,
+      noOfBedrooms,
+      features,
+      tenantCriteria,
+      owner,
+      areYouTheOwner,
+    } = validator.validate(req.body, 'propertyRentSchema');
 
     const response = await propertyRentControl.update(_id, {
       propertyType,
@@ -79,6 +98,7 @@ router.put('/rent/update/:_id', async (req: Request, res: Response, next: NextFu
       features,
       tenantCriteria,
       owner,
+      areYouTheOwner,
     });
     return res.status(HttpStatusCodes.OK).json(response);
   } catch (error) {

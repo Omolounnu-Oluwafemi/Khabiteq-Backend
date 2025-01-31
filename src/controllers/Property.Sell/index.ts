@@ -24,6 +24,8 @@ interface PropertySellProps {
     fullName: string;
     phoneNumber: string;
   };
+  areYouTheOwner: boolean;
+  usageOptions: string[];
 }
 
 export interface IPropertySellController {

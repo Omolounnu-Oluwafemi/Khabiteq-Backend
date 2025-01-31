@@ -1,11 +1,42 @@
-import { Router } from 'express';
+import { Request, Response } from 'express';
 import passport from 'passport';
 import PropertyRentRouter from './property.rent.api.actions';
 import PropertySellRouter from './property.sell.api.actions';
 import AgentRouter from './agent.api';
+import HttpStatusCodes from '../common/HttpStatusCodes';
+import cloudinary from '../common/cloudinary';
 
-// Init router and path
-const router = Router();
+import express from 'express';
+import multer from 'multer';
+
+const router = express.Router();
+
+// Configure Multer (Store file in memory before uploading)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Upload route using Multer to handle binary file
+router.post('/upload-image', upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: 'File is required' });
+    }
+
+    // Convert the buffer to a Base64 string
+    const fileBase64 = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
+    // Upload to Cloudinary
+    const uploadImg = await cloudinary.uploadFile(fileBase64, 'property-images', 'property-images');
+
+    return res.status(HttpStatusCodes.OK).json({
+      message: 'Image uploaded successfully',
+      url: uploadImg,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Internal server error' });
+  }
+});
 
 // Add sub-routes
 router.use('/agent', AgentRouter);

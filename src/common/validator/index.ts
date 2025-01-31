@@ -102,6 +102,12 @@ class Validator {
         email: joi.string().required(),
       })
       .required(),
+    usageOptions: joi.array().items(
+      joi
+        .string()
+        .valid(...Object.values(propertySell.getUsageOptions))
+        .required()
+    ),
   });
 
   private propertyRentSchema = joi.object({

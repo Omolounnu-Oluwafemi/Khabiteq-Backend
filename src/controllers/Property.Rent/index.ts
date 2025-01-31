@@ -25,6 +25,7 @@ interface PropertyRentProps {
     fullName: string;
     phoneNumber: string;
   };
+  areYouTheOwner: boolean;
 }
 
 export interface IPropertyRentController {

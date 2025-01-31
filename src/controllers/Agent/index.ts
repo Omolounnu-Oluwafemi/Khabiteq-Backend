@@ -7,9 +7,10 @@ import passport from 'passport';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { otherConstants } from '../../common/constants';
-import { RouteError, signJwt } from '../../common/classes';
+import { getMimeType, RouteError, signJwt } from '../../common/classes';
 import HttpStatusCodes from '../../common/HttpStatusCodes';
 import validator from '../../common/validator';
+import cloudinaryApiUpload from '../../common/cloudinary';
 
 export interface IAgentController {
   signup: (
@@ -38,7 +39,8 @@ export interface IAgentController {
       typeOfId: string;
       idNumber: string;
     },
-    doc: string
+    doc: string,
+    uploadImage: (image: any) => Promise<any>
   ) => Promise<any>;
 }
 
@@ -158,6 +160,25 @@ export class AgentController implements IAgentController {
       return { user: user.toObject(), token: token };
     } catch (err) {
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, err.message);
+    }
+  }
+
+  public async uploadImage(image: any): Promise<any> {
+    try {
+      const fileName = image.file.originalname;
+      console.log('fileName', fileName);
+      console.log('image', image);
+
+      if (!image) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Image not found');
+      const mimeType = getMimeType(image);
+      // const base64String = `data:${mimeType};base64,${req?.file?.buffer.toString('base64')}`;
+      // const imageUrl = await cloudinaryApiUpload.uploadFile(
+      //   base64String,
+      //   ,
+      //   user.accountType
+      // );
+    } catch (error) {
+      console.log(error);
     }
   }
 }

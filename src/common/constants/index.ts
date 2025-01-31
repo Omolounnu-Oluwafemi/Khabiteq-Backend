@@ -13,12 +13,22 @@ class PropertySell {
     governorConsent: 'Governor Consent',
   };
 
+  private usageOptions = {
+    outRightSale: 'Outright Sale',
+    lease: 'Lease',
+    all: 'All',
+    jointVenture: 'Joint Venture',
+  };
+
   public get getPropertyType() {
     return this.propertyType;
   }
 
   public get getDocOnProperty() {
     return this.docOnProperty;
+  }
+  public get getUsageOptions() {
+    return this.usageOptions;
   }
 }
 

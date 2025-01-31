@@ -47,10 +47,8 @@ router.get('/:_id', async (req: Request, res: Response, next: NextFunction) => {
 
 router.post('/new', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { propertyType, location, price, docOnProperty, propertyFeatures, owner } = validator.validate(
-      req.body,
-      'propertySellSchema'
-    );
+    const { propertyType, location, price, docOnProperty, propertyFeatures, owner, areYouTheOwner, usageOptions } =
+      validator.validate(req.body, 'propertySellSchema');
 
     const response = await propertySellControl.add({
       propertyType,
@@ -59,6 +57,8 @@ router.post('/new', async (req: Request, res: Response, next: NextFunction) => {
       docOnProperty,
       propertyFeatures,
       owner,
+      areYouTheOwner,
+      usageOptions,
     });
     return res.status(HttpStatusCodes.CREATED).json(response);
   } catch (error) {
@@ -78,10 +78,8 @@ router.put('/update/:_id', async (req: Request, res: Response, next: NextFunctio
         error: 'Property ID is required',
       });
     }
-    const { propertyType, location, price, docOnProperty, propertyFeatures, owner } = validator.validate(
-      req.body,
-      'propertySellSchema'
-    );
+    const { propertyType, location, price, docOnProperty, propertyFeatures, owner, areYouTheOwner, usageOptions } =
+      validator.validate(req.body, 'propertySellSchema');
 
     const updated = await propertySellControl.update(_id, {
       propertyType,
@@ -90,6 +88,8 @@ router.put('/update/:_id', async (req: Request, res: Response, next: NextFunctio
       docOnProperty,
       propertyFeatures,
       owner,
+      areYouTheOwner,
+      usageOptions,
     });
     return res.status(HttpStatusCodes.OK).json(updated);
   } catch (error) {

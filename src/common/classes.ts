@@ -1,6 +1,7 @@
 import Joi from 'joi/lib';
 import jwt from 'jsonwebtoken';
 import HttpStatusCodes from './HttpStatusCodes';
+import path from 'path';
 
 /**
  * Error with status code and message.
@@ -47,4 +48,19 @@ export const validateRequestData = (data: any, schemaFunc: any) => {
 
 export const signJwt = (data: any) => {
   return jwt.sign(data, process.env.JWT_SECRET, { expiresIn: '1h' });
+};
+
+export const getMimeType = (filename: string): string => {
+  const extname = path.extname(filename).toLowerCase();
+  switch (extname) {
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.png':
+      return 'image/png';
+    case '.gif':
+      return 'image/gif';
+    default:
+      return 'application/octet-stream'; // Fallback for unknown file types
+  }
 };

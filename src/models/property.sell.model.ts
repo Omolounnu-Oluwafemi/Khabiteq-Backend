@@ -20,7 +20,8 @@ export interface IPropertySell {
 
   owner: ObjectId;
   ownerModel: string;
-  areYouTheOwner?: boolean;
+  areYouTheOwner: boolean;
+  usageOptions: string[];
 }
 
 export interface IPropertySellDoc extends IPropertySell, Document {}
@@ -44,6 +45,7 @@ export class PropertySell {
           {
             docName: { type: String, required: true, enum: Object.values(propertySell.getDocOnProperty) },
             isProvided: { type: Boolean, required: true },
+            // imageUrl
           },
         ],
         propertyFeatures: {
@@ -58,6 +60,7 @@ export class PropertySell {
           enum: ['PropertyOwner', 'Agent'],
         },
         areYouTheOwner: { type: Boolean, default: false },
+        usageOptions: [{ type: String, required: true, enum: Object.values(propertySell.getUsageOptions) }],
       },
       {
         timestamps: true,
