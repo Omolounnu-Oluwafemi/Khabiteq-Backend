@@ -21,6 +21,9 @@ export interface IPropertyRent {
   owner: ObjectId;
   ownerModel: string;
   areYouTheOwner?: boolean;
+  isAvailable: string;
+  budgetRange?: string;
+  pictures?: string[];
 }
 
 export interface IPropertyRentDoc extends IPropertyRent, Document {}
@@ -59,9 +62,12 @@ export class PropertyRent {
         ownerModel: {
           type: String,
           required: true,
-          enum: ['PropertyOwner', 'Agent'],
+          enum: ['PropertyOwner', 'Agent', 'Request'],
         },
         areYouTheOwner: { type: Boolean, default: false },
+        isAvailable: { type: Boolean, default: true },
+        budgetRange: { type: String },
+        pictures: [{ type: String }],
       },
       {
         timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },

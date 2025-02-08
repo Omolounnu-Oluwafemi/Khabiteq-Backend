@@ -6,6 +6,9 @@ import {
   PropertySell,
   IAgentModel,
   Agent,
+  IBuyerOrRent,
+  BuyerOrRent,
+  IBuyerOrRentModel,
 } from '../models/index';
 import { IOwnerModel, Owner } from '../models/property.owner';
 
@@ -14,6 +17,7 @@ declare interface IModels {
   PropertyRent: IPropertyRentModel;
   Owner: IOwnerModel;
   Agent: IAgentModel;
+  BuyerOrRent: IBuyerOrRentModel;
 }
 
 export class DB {
@@ -37,6 +41,7 @@ export class DB {
       PropertySell: new PropertySell().model,
       Owner: new Owner().model,
       Agent: new Agent().model,
+      BuyerOrRent: new BuyerOrRent().model,
     };
   }
 
@@ -60,3 +65,6 @@ export class DB {
 export { AgentController, IAgentController } from './Agent';
 export { PropertyRentController, IPropertyRentController } from './Property.Rent';
 export { PropertySellController, IPropertySellController } from './Property.Sell';
+export { BuyerOrRentPropertyRentController, IBuyerOrRentPropertyRentController } from './Property.Rent.Request';
+
+export { BuyerOrRentPropertySellController, IBuyerOrRentPropertySellController } from './Property.Sell.Request';

@@ -11,6 +11,28 @@ import { getMimeType, RouteError, signJwt } from '../../common/classes';
 import HttpStatusCodes from '../../common/HttpStatusCodes';
 import validator from '../../common/validator';
 import cloudinaryApiUpload from '../../common/cloudinary';
+import { OAuth2Client, TokenPayload } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID as string);
+
+// Define an interface for the response
+interface GoogleUserInfo extends TokenPayload {}
+
+async function verifyIdToken(idToken: string): Promise<GoogleUserInfo | null> {
+  // console.log(idToken, process.env.GOOGLE_CLIENT_ID);
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID as string,
+    });
+    console.log('Ticket:', ticket.getPayload());
+    return ticket.getPayload() as GoogleUserInfo;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return null;
+  }
+}
 
 export interface IAgentController {
   signup: (
@@ -116,6 +138,53 @@ export class AgentController implements IAgentController {
     }
 
     return user.toObject();
+  }
+
+  public async googleSignup(idToken: string): Promise<IAgent> {
+    //GOOGLE AUTHENTICATION
+    const verifyUserWithGoogle = await verifyIdToken(idToken);
+
+    if (!verifyUserWithGoogle) {
+      throw new RouteError(HttpStatusCodes.UNAUTHORIZED, 'Invalid Google Token');
+    }
+
+    const { name, picture, email } = verifyUserWithGoogle;
+
+    const userExists = await DB.Models.Agent.findOne({ email });
+    console.log('Checking if user exists');
+    if (userExists) {
+      throw new RouteError(HttpStatusCodes.CONFLICT, 'User already exists');
+    }
+
+    const newAgent = await DB.Models.Agent.create({
+      email,
+      fullName: name,
+      profile_picture: picture,
+    });
+
+    return newAgent.toObject();
+  }
+
+  public async googleLogin(idToken: string): Promise<any> {
+    //GOOGLE AUTHENTICATION
+    const verifyUserWithGoogle = await verifyIdToken(idToken);
+
+    if (!verifyUserWithGoogle) {
+      throw new RouteError(HttpStatusCodes.UNAUTHORIZED, 'Invalid Google Token');
+    }
+
+    const { email } = verifyUserWithGoogle;
+
+    const user = await DB.Models.Agent.findOne({ email });
+    if (!user) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User not found');
+
+    const payload = {
+      email: user.email,
+      agentType: user.agentType,
+    };
+
+    const token = signJwt(payload);
+    return { user: user.toObject(), token: token };
   }
 
   public async login(agentCredential: { email: string; password: string }): Promise<any> {

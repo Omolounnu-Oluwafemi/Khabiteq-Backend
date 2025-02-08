@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 
-import { PropertyRentController } from '../controllers';
+import { BuyerOrRentPropertyRentController } from '../controllers';
 import HttpStatusCodes from '../common/HttpStatusCodes';
 import validator from '../common/validator';
 
 // Init shared
 const router = Router();
-const propertyRentControl = new PropertyRentController();
+const propertyRentControl = new BuyerOrRentPropertyRentController();
 
 /******************************************************************************
- *                      Get All propertys - "GET /api/properties/rents/rent/all"
+ *                      Get All propertys - "GET /api/properties/rents/request/rent/all"
  ******************************************************************************/
 
 router.get('/all', async (req: Request, res: Response) => {
@@ -19,7 +19,7 @@ router.get('/all', async (req: Request, res: Response) => {
 });
 
 /******************************************************************************
- *                      Get single property - "GET /api/properties/rents/rent/:_id"
+ *                      Get single property - "GET /api/properties/rents/request/rent/:_id"
  ******************************************************************************/
 
 router.get('/rent/:_id', async (req: Request, res: Response, next: NextFunction) => {
@@ -33,7 +33,7 @@ router.get('/rent/:_id', async (req: Request, res: Response, next: NextFunction)
 });
 
 /******************************************************************************
- *                       Add - "POST /api/properties/rents/rent/add"
+ *                       Add - "POST /api/properties/rents/request/rent/add"
  ******************************************************************************/
 
 router.post('/rent/new', async (req: Request, res: Response, next: NextFunction) => {
@@ -48,9 +48,15 @@ router.post('/rent/new', async (req: Request, res: Response, next: NextFunction)
       tenantCriteria,
       owner,
       areYouTheOwner,
-
+      budgetRange,
       pictures,
     } = validator.validate(req.body, 'propertyRentSchema');
+
+    if (!budgetRange)
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        data: 'Budget Range is missing',
+      });
 
     const response = await propertyRentControl.add({
       propertyType,
@@ -63,6 +69,7 @@ router.post('/rent/new', async (req: Request, res: Response, next: NextFunction)
       owner,
       areYouTheOwner,
       pictures,
+      budgetRange,
     });
     return res.status(HttpStatusCodes.CREATED).json(response);
   } catch (error) {
@@ -71,7 +78,7 @@ router.post('/rent/new', async (req: Request, res: Response, next: NextFunction)
 });
 
 /******************************************************************************
- *                       Update - "PUT /api/properties/rents/rent/update/:_id"
+ *                       Update - "PUT /api/properties/rents/request/rent/update/:_id"
  ******************************************************************************/
 
 router.put('/rent/update/:_id', async (req: Request, res: Response, next: NextFunction) => {
@@ -91,7 +98,14 @@ router.put('/rent/update/:_id', async (req: Request, res: Response, next: NextFu
       owner,
       areYouTheOwner,
       pictures,
+      budgetRange,
     } = validator.validate(req.body, 'propertyRentSchema');
+
+    if (!budgetRange)
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        data: 'Budget Range is missing',
+      });
 
     const response = await propertyRentControl.update(_id, {
       propertyType,
@@ -112,7 +126,7 @@ router.put('/rent/update/:_id', async (req: Request, res: Response, next: NextFu
 });
 
 /******************************************************************************
- *                    Delete - "DELETE /api/properties/rents/rent/delete/:_id"
+ *                    Delete - "DELETE /api/properties/rents/request/rent/delete/:_id"
  ******************************************************************************/
 
 router.delete('/rent/delete/:_id', async (req: Request, res: Response) => {

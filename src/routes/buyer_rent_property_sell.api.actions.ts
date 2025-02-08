@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 
-import { PropertySellController } from '../controllers';
+import { BuyerOrRentPropertySellController } from '../controllers';
 import HttpStatusCodes from '../common/HttpStatusCodes';
 import validator from '../common/validator';
 
 // Init shared
 const router = Router();
-const propertySellControl = new PropertySellController();
+const propertySellControl = new BuyerOrRentPropertySellController();
 
 /******************************************************************************
- *                      Get All propertys - "GET /api/properties/sell/all"
+ *                      Get All propertys - "GET /api/properties/buy/request/all"
  ******************************************************************************/
 
 router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +23,7 @@ router.get('/all', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 /******************************************************************************
- *                      Get single property - "GET /api/properties/sell/:_id"
+ *                      Get single property - "GET /api/properties/buy/request/:_id"
  ******************************************************************************/
 
 router.get('/:_id', async (req: Request, res: Response, next: NextFunction) => {
@@ -42,7 +42,7 @@ router.get('/:_id', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 /******************************************************************************
- *                       Add - "POST /api/properties/sell/new"
+ *                       Add - "POST /api/properties/buy/request/new"
  ******************************************************************************/
 
 router.post('/new', async (req: Request, res: Response, next: NextFunction) => {
@@ -56,8 +56,15 @@ router.post('/new', async (req: Request, res: Response, next: NextFunction) => {
       owner,
       areYouTheOwner,
       usageOptions,
+      budgetRange,
       pictures,
     } = validator.validate(req.body, 'propertySellSchema');
+
+    if (!budgetRange)
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        data: 'Budget Range is required',
+      });
 
     const response = await propertySellControl.add({
       propertyType,
@@ -69,6 +76,7 @@ router.post('/new', async (req: Request, res: Response, next: NextFunction) => {
       areYouTheOwner,
       usageOptions,
       pictures,
+      budgetRange,
     });
     return res.status(HttpStatusCodes.CREATED).json(response);
   } catch (error) {
@@ -77,7 +85,7 @@ router.post('/new', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 /******************************************************************************
- *                       Update - "PUT /api/properties/sell/:_id"
+ *                       Update - "PUT /api/properties/buy/request/:_id"
  ******************************************************************************/
 
 router.put('/update/:_id', async (req: Request, res: Response, next: NextFunction) => {
@@ -98,7 +106,14 @@ router.put('/update/:_id', async (req: Request, res: Response, next: NextFunctio
       areYouTheOwner,
       usageOptions,
       pictures,
+      budgetRange,
     } = validator.validate(req.body, 'propertySellSchema');
+
+    if (!budgetRange)
+      return res.status(HttpStatusCodes.BAD_REQUEST).json({
+        success: false,
+        data: 'Budget Range is required',
+      });
 
     const updated = await propertySellControl.update(_id, {
       propertyType,
@@ -110,6 +125,7 @@ router.put('/update/:_id', async (req: Request, res: Response, next: NextFunctio
       areYouTheOwner,
       usageOptions,
       pictures,
+      budgetRange,
     });
     return res.status(HttpStatusCodes.OK).json(updated);
   } catch (error) {
@@ -118,7 +134,7 @@ router.put('/update/:_id', async (req: Request, res: Response, next: NextFunctio
 });
 
 /******************************************************************************
- *                    Delete - "DELETE /api/properties/sell/delete/:_id"
+ *                    Delete - "DELETE /api/properties/buy/request/delete/:_id"
  ******************************************************************************/
 
 router.delete('/delete/:_id', async (req: Request, res: Response, next: NextFunction) => {

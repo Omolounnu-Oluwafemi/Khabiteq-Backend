@@ -12,6 +12,8 @@ export interface IAgent {
     state: string;
     localGovtArea: string;
   };
+  fullName?: string;
+  profile_picture: string;
   regionOfOperation: string;
   agentType: string;
   companyAgent: {
@@ -36,16 +38,18 @@ export class Agent {
     const schema = new Schema(
       {
         email: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
-        firstName: { type: String, required: true },
-        lastName: { type: String, required: true },
-        phoneNumber: { type: String, required: true },
+        password: { type: String },
+        firstName: { type: String },
+        lastName: { type: String },
+        phoneNumber: { type: String },
+        fullName: { type: String },
         address: {
           street: { type: String },
           city: { type: String },
           state: { type: String },
           localGovtArea: { type: String },
         },
+        profile_picture: { type: String },
         regionOfOperation: { type: String },
         agentType: { type: String, enum: ['Individual', 'Company'] },
         companyAgent: {

@@ -30,7 +30,7 @@ interface PropertySellProps {
   pictures?: string[];
 }
 
-export interface IPropertySellController {
+export interface IBuyerOrRentPropertySellController {
   all: () => Promise<IPropertySell[]>;
   getOne: (_id: string) => Promise<IPropertySell | null>;
   add: (PropertySell: PropertySellProps) => Promise<IPropertySell>;
@@ -38,7 +38,7 @@ export interface IPropertySellController {
   delete: (_id: string) => Promise<void>;
 }
 
-export class PropertySellController implements IPropertySellController {
+export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySellController {
   /**
    * @param id
    */
@@ -72,12 +72,12 @@ export class PropertySellController implements IPropertySellController {
    */
   public async add(PropertySell: PropertySellProps): Promise<IPropertySell> {
     try {
-      let owner = await DB.Models.Owner.findOne({ email: PropertySell.owner.email }).exec();
+      let owner = await DB.Models.BuyerOrRent.findOne({ email: PropertySell.owner.email }).exec();
       const agent = await DB.Models.Agent.findOne({ email: PropertySell.owner.email }).exec();
       if (!owner && !agent) {
-        owner = await DB.Models.Owner.create({
+        owner = await DB.Models.BuyerOrRent.create({
           ...PropertySell.owner,
-          ownerType: 'Seller',
+          ownerType: 'Buyer',
         });
       } else if (agent && !owner) {
         owner = agent as any;
@@ -85,7 +85,7 @@ export class PropertySellController implements IPropertySellController {
       const newPropertySell = await DB.Models.PropertySell.create({
         ...PropertySell,
         owner: owner._id,
-        ownerModel: owner && !agent ? 'PropertyOwner' : 'Agent',
+        ownerModel: 'Request',
       });
       return newPropertySell;
     } catch (err) {
@@ -100,7 +100,7 @@ export class PropertySellController implements IPropertySellController {
   public async update(_id: string, PropertySell: PropertySellProps): Promise<IPropertySell> {
     try {
       const owner =
-        (await DB.Models.Owner.findOne({ email: PropertySell.owner.email }).exec()) ||
+        (await DB.Models.BuyerOrRent.findOne({ email: PropertySell.owner.email }).exec()) ||
         (await DB.Models.Agent.findOne({ email: PropertySell.owner.email }).exec());
       if (!owner) throw new RouteError(HttpStatusCodes.NOT_FOUND, 'Owner not found');
       const property = await DB.Models.PropertySell.findOneAndUpdate(

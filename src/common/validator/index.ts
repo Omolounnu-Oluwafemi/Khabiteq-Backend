@@ -11,6 +11,7 @@ enum validatorSchemaNames {
   agentOnboardSchema = 'agentOnboardSchema',
   propertySellSchema = 'propertySellSchema',
   propertyRentSchema = 'propertyRentSchema',
+  googleSignupSchema = 'googleSignupSchema',
 }
 
 class Validator {
@@ -35,6 +36,10 @@ class Validator {
     lastName: joi.string().required(),
     firstName: joi.string().required(),
     phoneNumber: joi.string().required(),
+  });
+
+  private googleSignupSchema = joi.object({
+    idToken: joi.string().required(),
   });
 
   private agentLoginSchema = joi.object({
@@ -108,6 +113,8 @@ class Validator {
         .valid(...Object.values(propertySell.getUsageOptions))
         .required()
     ),
+    pictures: joi.array().items(joi.string()).optional(),
+    budgetRange: joi.string().optional(),
   });
 
   private propertyRentSchema = joi.object({
@@ -156,6 +163,8 @@ class Validator {
       email: joi.string().required(),
     }),
     areYouTheOwner: joi.boolean().required(),
+    pictures: joi.array().items(joi.string()).optional(),
+    budgetRange: joi.string().optional(),
   });
 
   public validate(data: any, schemaName: keyof typeof validatorSchemaNames) {

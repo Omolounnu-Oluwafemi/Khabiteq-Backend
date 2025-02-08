@@ -5,6 +5,8 @@ import PropertySellRouter from './property.sell.api.actions';
 import AgentRouter from './agent.api';
 import HttpStatusCodes from '../common/HttpStatusCodes';
 import cloudinary from '../common/cloudinary';
+import RentPropertyRentRequest from './buyer_rent_property_rent.api.actions';
+import BuyPropertySellRequest from './buyer_rent_property_sell.api.actions';
 
 import express from 'express';
 import multer from 'multer';
@@ -40,9 +42,10 @@ router.post('/upload-image', upload.single('file'), async (req: Request, res: Re
 
 // Add sub-routes
 router.use('/agent', AgentRouter);
-
 router.use('/properties/rents', PropertyRentRouter);
 router.use('/properties/sell', PropertySellRouter);
+router.use('/properties/buy/request', BuyPropertySellRequest);
+router.use('/properties/rent/request', RentPropertyRentRequest);
 
 // Add one more middleware namely `authorize` after passport.authenticate to authorize user for access
 // console `req.user` and `req` in authorize middleware

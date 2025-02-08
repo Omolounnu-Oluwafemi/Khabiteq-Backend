@@ -28,6 +28,34 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction) =
 });
 
 /******************************************************************************
+ *                      add user - "POST /api/auth/register/google"
+ ******************************************************************************/
+
+router.post('/signup/google', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { idToken } = validator.validate(req.body, 'googleSignupSchema');
+    const googleUserInfo = await agentControl.googleSignup(idToken);
+    return res.status(200).json(googleUserInfo);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/******************************************************************************
+ *                      get user - "GET /api/login/google"
+ ******************************************************************************/
+
+router.get('/login/google', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { idToken } = validator.validate(req.body, 'googleSignupSchema');
+    const googleUserInfo = await agentControl.googleSignup(idToken as string);
+    return res.status(200).json(googleUserInfo);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/******************************************************************************
  *                      onboard agent - "POST /api/auth/onboard"
  ******************************************************************************/
 

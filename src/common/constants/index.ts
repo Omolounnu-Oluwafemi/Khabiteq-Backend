@@ -94,6 +94,7 @@ class PropertyOwner {
   private ownerType = {
     seller: 'Seller',
     landlord: 'LandLord',
+    buyer: 'Buyer',
   };
 
   public get getOwnerType() {

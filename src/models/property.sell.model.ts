@@ -22,6 +22,9 @@ export interface IPropertySell {
   ownerModel: string;
   areYouTheOwner: boolean;
   usageOptions: string[];
+  isAvailable: boolean;
+  budgetRange?: string;
+  pictures?: string[];
 }
 
 export interface IPropertySellDoc extends IPropertySell, Document {}
@@ -57,10 +60,13 @@ export class PropertySell {
         ownerModel: {
           type: String,
           required: true,
-          enum: ['PropertyOwner', 'Agent'],
+          enum: ['PropertyOwner', 'Agent', 'Request'],
         },
         areYouTheOwner: { type: Boolean, default: false },
         usageOptions: [{ type: String, required: true, enum: Object.values(propertySell.getUsageOptions) }],
+        isAvailable: { type: Boolean, default: true },
+        budgetRange: { type: String },
+        pictures: [{ type: String }],
       },
       {
         timestamps: true,
