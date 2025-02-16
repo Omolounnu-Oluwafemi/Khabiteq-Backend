@@ -6,6 +6,10 @@ import BaseRouter from './routes';
 import { RouteError } from './common/classes';
 import cors from 'cors';
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 // Init Auth service
 require('./services/authorize');
 
