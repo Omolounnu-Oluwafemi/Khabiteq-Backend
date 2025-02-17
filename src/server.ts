@@ -2,13 +2,13 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import express, { NextFunction, Request, Response } from 'express';
 import cookieParser from 'cookie-parser';
-import BaseRouter from './routes';
-import { RouteError } from './common/classes';
-import cors from 'cors';
-
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+import BaseRouter from './routes';
+import { RouteError } from './common/classes';
+import cors from 'cors';
 
 // Init Auth service
 require('./services/authorize');
