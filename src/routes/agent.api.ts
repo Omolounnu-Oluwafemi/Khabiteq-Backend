@@ -3,9 +3,10 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { AgentController, DB } from '../controllers';
 import validator from '../common/validator';
 import HttpStatusCodes from '../common/HttpStatusCodes';
-import { PropertyRent, PropertySell } from '../models';
+import { IAgentDoc, PropertyRent, PropertySell } from '../models';
 import jwt from 'jsonwebtoken';
 import googleAuthHandler from './googleAuth';
+import authorize from './authorize';
 
 // Init shared
 const router = Router();
@@ -89,6 +90,29 @@ router.post('/login/google', googleAuthHandler, async (req: Request, res: Respon
 });
 
 /******************************************************************************
+ *                      get agent auth details - "POST /api/auth/login"
+ ******************************************************************************/
+
+router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+  let response;
+  let status;
+  try {
+    const reqBody = validator.validate(req.body, 'agentLoginSchema');
+    const { user, token } = await agentControl.login({ email: reqBody.email, password: reqBody.password });
+    status = 200;
+
+    const { password, ...newUser } = user;
+    return res.status(status).json({ user: newUser, token });
+  } catch (error) {
+    response = error;
+    status = 400;
+    next(error);
+  }
+});
+
+router.use(authorize);
+
+/******************************************************************************
  *                      onboard agent - "POST /api/auth/onboard"
  ******************************************************************************/
 
@@ -123,27 +147,6 @@ router.put('/onboard', async (req: Request, res: Response, next: NextFunction) =
   }
 });
 
-/******************************************************************************
- *                      get agent auth details - "POST /api/auth/login"
- ******************************************************************************/
-
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-  let response;
-  let status;
-  try {
-    const reqBody = validator.validate(req.body, 'agentLoginSchema');
-    const { user, token } = await agentControl.login({ email: reqBody.email, password: reqBody.password });
-    status = 200;
-
-    const { password, ...newUser } = user;
-    return res.status(status).json({ user: newUser, token });
-  } catch (error) {
-    response = error;
-    status = 400;
-    next(error);
-  }
-});
-
 router.post('/upload/image', async (req: Request & { file?: any }, res: Response, next: NextFunction) => {
   try {
     const { image } = req.body;
@@ -167,6 +170,26 @@ router.post('/properties', async (req: Request, res: Response, next: NextFunctio
   } catch (error) {
     next(error);
   }
+});
+
+router.get('/properties', async (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user as IAgentDoc;
+
+  if (!user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const rentProperties = await DB.Models.PropertyRent.find({ owner: user._id });
+
+  const sellProperties = await DB.Models.PropertySell.find({ owner: user._id });
+
+  return res.status(200).json({
+    success: true,
+    data: {
+      rentProperties,
+      sellProperties,
+    },
+  });
 });
 
 /******************************************************************************

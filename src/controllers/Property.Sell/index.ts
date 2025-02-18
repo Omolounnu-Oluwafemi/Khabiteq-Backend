@@ -1,7 +1,9 @@
+import { generatePropertySellBriefEmail } from '../../common/email.template';
 import HttpStatusCodes from '../../common/HttpStatusCodes';
 import { RouteError } from '../../common/classes';
 import { IPropertySell } from '../../models/index';
 import { DB } from '../index';
+import sendEmail from '../../common/send.email';
 
 interface PropertySellProps {
   propertyType: string;
@@ -87,6 +89,25 @@ export class PropertySellController implements IPropertySellController {
         owner: owner._id,
         ownerModel: owner && !agent ? 'PropertyOwner' : 'Agent',
       });
+      const mailBody = generatePropertySellBriefEmail({ ...PropertySell, isAdmin: true });
+
+      const adminEmail = process.env.ADMIN_EMAIL || '';
+
+      await sendEmail({
+        to: adminEmail,
+        subject: 'New Property Sell Request',
+        text: mailBody,
+        html: mailBody,
+      });
+      const mailBody1 = generatePropertySellBriefEmail({ ...PropertySell });
+
+      await sendEmail({
+        to: owner.email,
+        subject: 'New Property Sell Request',
+        text: mailBody1,
+        html: mailBody1,
+      });
+
       return newPropertySell;
     } catch (err) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);

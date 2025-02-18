@@ -3,6 +3,8 @@ import HttpStatusCodes from '../../common/HttpStatusCodes';
 import { RouteError } from '../../common/classes';
 import { IPropertyRent } from '../../models/index';
 import { DB } from '../index';
+import { generatePropertyRentBriefEmail } from '../../common/email.template';
+import sendEmail from '../../common/send.email';
 
 interface PropertyRentProps {
   propertyType: string;
@@ -91,8 +93,30 @@ export class PropertyRentController implements IPropertyRentController {
         owner: owner._id,
         ownerModel: owner && !agent ? 'PropertyOwner' : 'Agent',
       });
+
+      const mailBody = generatePropertyRentBriefEmail({ ...PropertyRent, isAdmin: true });
+
+      const adminEmail = process.env.ADMIN_EMAIL || '';
+
+      await sendEmail({
+        to: adminEmail,
+        subject: 'New Property Rent Request',
+        text: mailBody,
+        html: mailBody,
+      });
+
+      const mailBody1 = generatePropertyRentBriefEmail({ ...PropertyRent });
+
+      await sendEmail({
+        to: owner.email,
+        subject: 'New Property Rent Request',
+        text: mailBody1,
+        html: mailBody1,
+      });
+
       return newPropertyRent;
     } catch (err) {
+      console.log(err);
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);
     }
   }

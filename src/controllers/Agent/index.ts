@@ -152,7 +152,7 @@ export class AgentController implements IAgentController {
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid agent type');
     }
 
-    const token = signJwt({ email: user.email, agentType: user.agentType });
+    const token = signJwt({ email: user.email, agentType: user.agentType, id: user._id });
 
     return { ...user.toObject(), token };
   }
@@ -180,7 +180,7 @@ export class AgentController implements IAgentController {
       isAccountVerified: true,
     });
 
-    const token = signJwt({ email: newAgent.email });
+    const token = signJwt({ email: newAgent.email, id: newAgent._id });
 
     return { ...newAgent.toObject(), token };
   }
@@ -201,6 +201,7 @@ export class AgentController implements IAgentController {
     const payload = {
       email: user.email,
       agentType: user?.agentType,
+      id: user._id,
     };
 
     const token = signJwt(payload);
@@ -209,30 +210,6 @@ export class AgentController implements IAgentController {
 
   public async login(agentCredential: { email: string; password: string }): Promise<any> {
     try {
-      // return new Promise((resolve, reject) => {
-      //   passport.authenticate('local', { session: false }, (error: any, user: any) => {
-      //     if (error || !user) {
-      //       console.log('error', error);
-      //       reject(error);
-      //       return;
-      //     }
-
-      //     /** This is what ends up in our JWT */
-      //     const payload = {
-      //       email: user,
-      //       agentType: user.agentType,
-      //     };
-
-      //     /** assigns payload to req.user */
-
-      //     /** generate a signed json web token and return it in the response */
-      //     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      //       expiresIn: otherConstants.getConstants().jwtExpire,
-      //     });
-
-      //     resolve({ payload, token });
-      //   })(req, res);
-      // });
       const { email, password } = agentCredential;
       const user = await DB.Models.Agent.findOne({ email });
       if (!user) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User not found');
@@ -243,6 +220,7 @@ export class AgentController implements IAgentController {
       const payload = {
         email: user.email,
         agentType: user.agentType,
+        id: user._id,
       };
 
       const token = signJwt(payload);

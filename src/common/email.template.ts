@@ -83,3 +83,203 @@ export const verifyEmailTemplate = (name: string, verificationLink: string): str
                         </html>
                 `;
 };
+
+export function generatePropertyRentBriefEmail(data: any) {
+  console.log(data);
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Property Rental Brief</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                padding: 20px;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            h2 {
+                color: #333;
+            }
+            p {
+                line-height: 1.6;
+            }
+            .details {
+                background: #f9f9f9;
+                padding: 10px;
+                border-radius: 5px;
+            }
+                .pictures {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center
+                gap: 10px;
+                }
+            .footer {
+                margin-top: 20px;
+                text-align: center;
+                font-size: 14px;
+                color: #777;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>New Property Rental Brief Created</h2>
+            <p>A new property rental brief has been submitted for rent. Here are the details:</p>
+            
+            <div class="details">
+                <p><strong>Property Type:</strong> ${data.propertyType}</p>
+                <p><strong>Condition:</strong> ${data.propertyCondition}</p>
+                <p><strong>Location:</strong> ${data.location.state}, ${data.location.localGovernment}, ${
+    data.location.area
+  }</p>
+                <p><strong>Rental Price:</strong> ₦${data.rentalPrice}</p>
+                <p><strong>Number of Bedrooms:</strong> ${data.noOfBedrooms}</p>
+                <p><strong>Features:</strong> ${data.features.map((f: any) => f.featureName).join(', ')}</p>
+                <p><strong>Tenant Criteria:</strong> ${data.tenantCriteria.map((c: any) => c.criteria).join(', ')}</p>
+                <p>Owner Email: ${data.owner.email}</p>
+                <p><strong>Owner Name:</strong> ${data.owner.fullName}</p>
+                <p><strong>Owner Phone:</strong> ${data.owner.phoneNumber}</p>
+
+                <p><strong>Owner Status:</strong> ${data.areYouTheOwner ? 'Yes' : 'No'}</p>
+                <p><strong>Availability:</strong> ${data.isAvailable}</p>
+                <p><strong>Budget Range:</strong> ${data.budgetRange || 'N/A'}</p>
+            </div>
+    
+            ${
+              data.pictures && data.pictures.length
+                ? `
+            <h3>Property Pictures</h3>
+            <div class="pictures">
+                ${data.pictures
+                  .map(
+                    (pic: any) =>
+                      `<img src="${pic}" alt="Property Image" width="400px" height="400px" style="margin-top: 10px; border-radius: 5px;">`
+                  )
+                  .join('')}
+            </div>
+            `
+                : ''
+            }
+            
+            ${data.isAdmin ? '<p>Admin, please review and take the necessary actions.</p>' : ''}
+            <div class="footer">&copy; ${new Date().getFullYear()} Khabi-Teq</div>
+        </div>
+    </body>
+    </html>
+    `;
+}
+
+export function generatePropertySellBriefEmail(data: any) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Property Brief</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                padding: 20px;
+            }
+            .container {
+                max-width: 900px;
+                margin: 0 auto;
+                background: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            h2 {
+                color: #333;
+            }
+            p {
+                line-height: 1.6;
+            }
+            .details {
+                background: #f9f9f9;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            .footer {
+                margin-top: 20px;
+                text-align: center;
+                font-size: 14px;
+                color: #777;
+            }
+                .pictures {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center
+                gap: 10px;
+                }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>New Property Brief Created</h2>
+            <p>A new property brief has been submitted for sale. Here are the details:</p>
+            
+            <div class="details">
+                <p><strong>Property Type:</strong> ${data.propertyType}</p>
+                <p><strong>Location:</strong> ${data.location.state}, ${data.location.localGovernment}, ${
+    data.location.area
+  }</p>
+                <p><strong>Price:</strong> ₦${data.price || data.rentalPrice}</p>
+                <p><strong>Number of Bedrooms:</strong> ${data.propertyFeatures?.noOfBedrooms || data.noOfBedrooms}</p>
+                <p><strong>Features:</strong> ${
+                  data.propertyFeatures?.additionalFeatures?.join(', ') ||
+                  data.features?.map((f: any) => f.featureName).join(', ')
+                }</p>
+                <p><strong>Tenant Criteria:</strong> ${
+                  data.tenantCriteria?.map((c: any) => c.criteria).join(', ') || 'N/A'
+                }</p>
+                <p><strong>Documents on Property:</strong> ${
+                  data.docOnProperty
+                    ?.map((doc: any) => `${doc.docName} (${doc.isProvided ? 'Provided' : 'Not Provided'})`)
+                    .join(', ') || 'N/A'
+                }</p>
+                <p>Owner Email: ${data.owner.email}</p>
+                <p><strong>Owner Name:</strong> ${data.owner.fullName}</p>
+                <p><strong>Owner Phone:</strong> ${data.owner.phoneNumber}</p>
+                <p><strong>Owner Status:</strong> ${data.areYouTheOwner ? 'Yes' : 'No'}</p>
+                <p><strong>Usage Options:</strong> ${data.usageOptions?.join(', ') || 'N/A'}</p>
+                <p><strong>Availability:</strong> ${data.isAvailable ? 'Yes' : 'No'}</p>
+                <p><strong>Budget Range:</strong> ${data.budgetRange || 'N/A'}</p>
+            </div>
+    
+            ${
+              data.pictures && data.pictures.length
+                ? `
+            <h3>Property Pictures</h3>
+            <div class="pictures">
+                ${data.pictures
+                  .map(
+                    (pic: any) =>
+                      `<img src="${pic}" alt="Property Image" width="400px" height="400px" style="margin-top: 10px; border-radius: 5px;">`
+                  )
+                  .join('')}
+            </div>
+            `
+                : ''
+            }
+            
+            ${data.isAdmin ? '<p>Admin, please review and take the necessary actions.</p>' : ''}
+            <div class="footer">&copy; ${new Date().getFullYear()} Khabi-Teq</div>
+        </div>
+    </body>
+    </html>
+    `;
+}
