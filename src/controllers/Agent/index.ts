@@ -214,8 +214,25 @@ export class AgentController implements IAgentController {
       const user = await DB.Models.Agent.findOne({ email });
       if (!user) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User not found');
 
+      if (!user.password) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid Password');
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid password');
+
+      if (!user.isAccountVerified) {
+        const token = signJwt({ email: user.email });
+
+        const verificationLink = process.env.CLIENT_LINK + '?access_token=' + token;
+        const mailBody = verifyEmailTemplate(user.firstName, verificationLink);
+
+        await sendEmail({
+          to: email,
+          subject: 'Verify Your Email Address',
+          text: 'Verify Your Email Address',
+          html: mailBody,
+        });
+        throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Account not verified');
+      }
 
       const payload = {
         email: user.email,
