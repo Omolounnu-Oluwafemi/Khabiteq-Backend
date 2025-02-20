@@ -27,7 +27,7 @@ class Validator {
       .min(8)
       .max(30)
       .custom((value, helpers) => {
-        if (!/[A-Z].*[A-Z]/.test(value)) {
+        if (!/[A-Z].*[a-z]/.test(value)) {
           return helpers.error('string.minOfUppercase');
         }
         // if (!/[a-z].*[a-z]/.test(value)) {
@@ -51,7 +51,7 @@ class Validator {
         return value;
       })
       .messages({
-        'string.minOfUppercase': 'Password must contain at least 2 uppercase letters.',
+        'string.minOfUppercase': 'Password must contain at least 1 uppercase letters.',
         // 'string.minOfLowercase': 'Password must contain at least 2 lowercase letters.',
         // 'string.minOfNumeric': 'Password must contain at least 2 numbers.',
         'string.minOfSpecialCharacters': 'Password must contain at least 2 special characters.',
