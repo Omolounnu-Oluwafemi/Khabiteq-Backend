@@ -18,6 +18,7 @@ const authorize = (req: Request, res: Response, next: NextFunction) => {
 
     const user = jwt.verify(token, process.env.JWT_SECRET, async (err, decoded: { id: string }) => {
       if (err) {
+        console.log(err);
         return res.status(401).json({ message: 'Token is not valid' });
       }
 

@@ -52,7 +52,7 @@ router.get('/verify-email', async (req: Request, res: Response, next: NextFuncti
     agent.isAccountVerified = true;
     await agent.save();
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '2d' });
+    const token = jwt.sign({ email, id: agent._id }, process.env.JWT_SECRET, { expiresIn: '2d' });
 
     const { password, ...newUser } = agent.toObject();
     return res.status(200).json({ ...newUser, token });
@@ -118,10 +118,18 @@ router.use(authorize);
 
 router.put('/onboard', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { token, address, regionOfOperation, agentType, companyAgent, individualAgent, doc } = validator.validate(
-      req.body,
-      'agentOnboardSchema'
-    );
+    const {
+      token,
+      address,
+      regionOfOperation,
+      agentType,
+      companyAgent,
+      individualAgent,
+      doc,
+      phoneNumber,
+      lastName,
+      firstName,
+    } = validator.validate(req.body, 'agentOnboardSchema');
 
     const decodeToken = (await jwt.verify(token, process.env.JWT_SECRET)) as any;
 
@@ -134,7 +142,11 @@ router.put('/onboard', async (req: Request, res: Response, next: NextFunction) =
       agentType,
       companyAgent,
       individualAgent,
-      doc
+      doc,
+      phoneNumber,
+
+      lastName,
+      firstName
     );
     return res.status(HttpStatusCodes.OK).json({
       message: 'Agent information updated successfully',

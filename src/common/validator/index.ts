@@ -30,21 +30,21 @@ class Validator {
         if (!/[A-Z].*[A-Z]/.test(value)) {
           return helpers.error('string.minOfUppercase');
         }
-        if (!/[a-z].*[a-z]/.test(value)) {
-          return helpers.error('string.minOfLowercase');
-        }
-        if (!/[0-9].*[0-9]/.test(value)) {
-          return helpers.error('string.minOfNumeric');
-        }
+        // if (!/[a-z].*[a-z]/.test(value)) {
+        //   return helpers.error('string.minOfLowercase');
+        // }
+        // if (!/[0-9].*[0-9]/.test(value)) {
+        //   return helpers.error('string.minOfNumeric');
+        // }
         if (!/[^a-zA-Z0-9].*[^a-zA-Z0-9]/.test(value)) {
           return helpers.error('string.minOfSpecialCharacters');
         }
-        if (/\s/.test(value)) {
-          return helpers.error('string.noWhiteSpaces');
-        }
-        if (!/^[\x00-\x7F]+$/.test(value)) {
-          return helpers.error('string.onlyLatinCharacters');
-        }
+        // if (/\s/.test(value)) {
+        //   return helpers.error('string.noWhiteSpaces');
+        // }
+        // if (!/^[\x00-\x7F]+$/.test(value)) {
+        //   return helpers.error('string.onlyLatinCharacters');
+        // }
         if (/\bpassword\b/i.test(value)) {
           return helpers.error('string.doesNotInclude');
         }
@@ -52,11 +52,11 @@ class Validator {
       })
       .messages({
         'string.minOfUppercase': 'Password must contain at least 2 uppercase letters.',
-        'string.minOfLowercase': 'Password must contain at least 2 lowercase letters.',
-        'string.minOfNumeric': 'Password must contain at least 2 numbers.',
+        // 'string.minOfLowercase': 'Password must contain at least 2 lowercase letters.',
+        // 'string.minOfNumeric': 'Password must contain at least 2 numbers.',
         'string.minOfSpecialCharacters': 'Password must contain at least 2 special characters.',
-        'string.noWhiteSpaces': 'Password cannot contain whitespace.',
-        'string.onlyLatinCharacters': 'Password must contain only Latin characters.',
+        // 'string.noWhiteSpaces': 'Password cannot contain whitespace.',
+        // 'string.onlyLatinCharacters': 'Password must contain only Latin characters.',
         'string.doesNotInclude': 'Password cannot include the word "password".',
       })
       .required(),
@@ -95,6 +95,9 @@ class Validator {
       })
       .optional(),
     doc: joi.string().required(),
+    phoneNumber: joi.string().required(),
+    firstName: joi.string().required(),
+    lastName: joi.string().required(),
   });
 
   private propertySellSchema = joi.object({

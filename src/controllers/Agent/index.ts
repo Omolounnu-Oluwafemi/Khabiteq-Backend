@@ -65,8 +65,11 @@ export interface IAgentController {
       idNumber: string;
     },
     doc: string,
-    uploadImage: (image: any) => Promise<any>
+    phoneNumber: string,
+    lastName: string,
+    firstName: string
   ) => Promise<any>;
+  uploadImage: (image: any) => Promise<any>;
 }
 
 export class AgentController implements IAgentController {
@@ -116,13 +119,16 @@ export class AgentController implements IAgentController {
       typeOfId: string;
       idNumber: string;
     },
-    doc: string
+    doc: string,
+    phoneNumber: string,
+    lastName: string,
+    firstName: string
   ): Promise<any> {
     let user = await DB.Models.Agent.findOne({ email }).exec();
 
     if (!user) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User not found');
 
-    if (user.agentType) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User already onboarded');
+    // if (user.agentType) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User already onboarded');
 
     if (agentType === 'Company' && companyAgent) {
       user = await DB.Models.Agent.findOneAndUpdate(
@@ -133,6 +139,9 @@ export class AgentController implements IAgentController {
           agentType,
           companyAgent,
           doc,
+          phoneNumber,
+          lastName,
+          firstName,
         },
         { new: true }
       );
@@ -145,6 +154,9 @@ export class AgentController implements IAgentController {
           agentType,
           individualAgent,
           doc,
+          phoneNumber,
+          lastName,
+          firstName,
         },
         { new: true }
       );
