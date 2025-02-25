@@ -141,16 +141,33 @@ router.delete('/rent/delete/:_id', async (req: Request, res: Response) => {
 
 router.post('/rent/search', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { propertyType, location, budgetMin, budgetMax, features } = validator.validate(
-      req.body,
-      'propertyRentSearchSchema'
-    );
-    const response = await propertyRentControl.getPropertiesFuzzy({
+    // const { propertyType, location, budgetMin, budgetMax, features } = validator.validate(
+    //   req.body,
+    //   'propertyRentSearchSchema'
+    // );
+    const {
       propertyType,
-      location,
+      propertyCondition,
+      state,
+      localGovernment,
+      area,
+      noOfBedrooms,
       budgetMin,
       budgetMax,
       features,
+      tenantCriteria,
+    } = req.body;
+    const response = await propertyRentControl.getPropertiesFuzzy({
+      propertyType,
+      propertyCondition,
+      state,
+      localGovernment,
+      area,
+      noOfBedrooms,
+      budgetMin,
+      budgetMax,
+      features,
+      tenantCriteria,
     });
     return res.status(HttpStatusCodes.OK).json(response);
   } catch (error) {

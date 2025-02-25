@@ -42,14 +42,16 @@ interface PropertyRentRequestProps {
 
 interface PropertySearchProps {
   propertyType: string;
-  location: {
-    state: string;
-    localGovernment: string;
-    area: string;
-  };
+  propertyCondition: string;
+  state: string;
+  localGovernment: string;
+  area: string;
+  noOfBedrooms: number;
+
   budgetMin: number;
   budgetMax: number;
   features: string;
+  tenantCriteria: string;
 }
 
 export interface IBuyerOrRentPropertyRentController {
@@ -160,34 +162,96 @@ export class BuyerOrRentPropertyRentController implements IBuyerOrRentPropertyRe
 
   public async getPropertiesFuzzy(PropertySearch: PropertySearchProps) {
     try {
-      const { propertyType, location, budgetMin, budgetMax, features } = PropertySearch;
+      // const { propertyType, location, budgetMin, budgetMax, features } = PropertySearch;
 
-      const properties = await DB.Models.PropertyRent.find({
-        ...(budgetMin || budgetMax
-          ? { price: { ...(budgetMin ? { $gte: budgetMin } : {}), ...(budgetMax ? { $lte: budgetMax } : {}) } }
-          : {}),
-      });
+      // const properties = await DB.Models.PropertyRent.find({
+      //   ...(budgetMin || budgetMax
+      //     ? { price: { ...(budgetMin ? { $gte: budgetMin } : {}), ...(budgetMax ? { $lte: budgetMax } : {}) } }
+      //     : {}),
+      // });
 
-      console.log(properties);
+      // console.log(properties);
 
-      const fuse = new Fuse(properties, {
-        keys: [
-          'propertyType',
-          'location.state',
-          'location.localGovernment',
-          'location.area',
-          'propertyFeatures.additionalFeatures',
-        ],
-        threshold: 0.4, // Lower means stricter match
-      });
+      // const fuse = new Fuse(properties, {
+      //   keys: [
+      //     'propertyType',
+      //     'location.state',
+      //     'location.localGovernment',
+      //     'location.area',
+      //     'propertyFeatures.additionalFeatures',
+      //   ],
+      //   threshold: 0.4, // Lower means stricter match
+      // });
 
-      console.log(fuse);
+      // console.log(fuse);
 
-      const results = fuse.search(
-        `${propertyType} ${location?.state} ${location?.localGovernment} ${location?.area} ${features}`
-      );
+      // const results = fuse.search(
+      //   `${propertyType} ${location?.state} ${location?.localGovernment} ${location?.area} ${features}`
+      // );
 
-      return results.map((result) => result.item);
+      // return results.map((result) => result.item);
+
+      // Match exact property type
+
+      const {
+        propertyType,
+        propertyCondition,
+        state,
+        localGovernment,
+        area,
+        budgetMin,
+        budgetMax,
+        noOfBedrooms,
+        features,
+        tenantCriteria,
+      } = PropertySearch;
+
+      const query: any = {};
+
+      if (propertyType) query.propertyType = propertyType;
+
+      // Match exact property condition
+      if (propertyCondition) query.propertyCondition = propertyCondition;
+
+      // Match location (state, local government, area)
+      if (state) query['location.state'] = state;
+      if (localGovernment) query['location.localGovernment'] = localGovernment;
+      if (area) query['location.area'] = area;
+
+      // Price range filter
+      if (budgetMin || budgetMax) {
+        query.rentalPrice = {};
+        if (budgetMin) query.rentalPrice.$gte = Number(budgetMin);
+        if (budgetMax) query.rentalPrice.$lte = Number(budgetMax);
+      }
+
+      // Number of bedrooms filter
+      if (noOfBedrooms) {
+        query.noOfBedrooms = {};
+        query.noOfBedrooms.$gte = Number(noOfBedrooms);
+      }
+
+      // Features filter (matches if at least one feature exists)
+      if (features) {
+        const featuresArray = Array.isArray(features) ? features : [features];
+        query.features = { $elemMatch: { featureName: { $in: featuresArray } } };
+      }
+
+      // Tenant criteria filter
+      if (tenantCriteria) {
+        const criteriaArray = Array.isArray(tenantCriteria) ? tenantCriteria : [tenantCriteria];
+        query.tenantCriteria = { $elemMatch: { criteria: { $in: criteriaArray } } };
+      }
+
+      // // Availability filter
+      // if (isAvailable !== undefined) {
+      //   query.isAvailable = isAvailable === 'true';
+      // }
+
+      // Execute the query
+      const properties = await DB.Models.PropertyRent.find(query);
+
+      return properties;
     } catch (error) {
       console.error(error);
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message);
