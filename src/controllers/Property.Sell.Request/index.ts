@@ -33,14 +33,15 @@ interface PropertySellProps {
 
 interface PropertySearchProps {
   propertyType: string;
-  location: {
-    state: string;
-    localGovernment: string;
-    area: string;
-  };
-  budgetMin: number;
-  budgetMax: number;
-  features: string;
+  state: string;
+  localGovernment: string;
+  area: string;
+  minPrice: number;
+  maxPrice: number;
+  minBedrooms: number;
+  maxBedrooms: number;
+  usageOptions: [string];
+  additionalFeatures: [string];
 }
 
 export interface IBuyerOrRentPropertySellController {
@@ -49,7 +50,7 @@ export interface IBuyerOrRentPropertySellController {
   add: (PropertySell: PropertySellProps) => Promise<IPropertySell>;
   update: (_id: string, PropertySell: PropertySellProps) => Promise<IPropertySell>;
   delete: (_id: string) => Promise<void>;
-  getPropertiesFuzzy: (PropertySearch: PropertySearchProps) => Promise<IPropertySell[]>;
+  getPropertiesFuzzySearch: (PropertySearch: PropertySearchProps) => Promise<IPropertySell[]>;
 }
 
 export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySellController {
@@ -148,32 +149,61 @@ export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySe
    * Fuzzy Searching
    */
 
-  public async getPropertiesFuzzy(PropertySearch: PropertySearchProps) {
+  public async getPropertiesFuzzySearch(PropertySearch: PropertySearchProps) {
     try {
-      const { propertyType, location, budgetMin, budgetMax, features } = PropertySearch;
+      const {
+        propertyType,
 
-      const properties = await DB.Models.PropertySell.find({
-        ...(budgetMin || budgetMax
-          ? { price: { ...(budgetMin ? { $gte: budgetMin } : {}), ...(budgetMax ? { $lte: budgetMax } : {}) } }
-          : {}),
-      });
+        state,
+        localGovernment,
+        area,
+        minPrice,
+        maxPrice,
+        minBedrooms,
+        maxBedrooms,
+        usageOptions,
+        additionalFeatures,
+      } = PropertySearch;
 
-      const fuse = new Fuse(properties, {
-        keys: [
-          'propertyType',
-          'location.state',
-          'location.localGovernment',
-          'location.area',
-          'propertyFeatures.additionalFeatures',
-        ],
-        threshold: 0.4, // Lower means stricter match
-      });
+      const query: any = {};
 
-      const results = fuse.search(
-        `${propertyType} ${location?.state} ${location?.localGovernment} ${location?.area} ${features}`
-      );
+      // Filter by Property Type
+      if (propertyType) query.propertyType = propertyType;
 
-      return results.map((result) => result.item);
+      // Filter by Location
+      if (state) query['location.state'] = state;
+      if (localGovernment) query['location.localGovernment'] = localGovernment;
+      if (area) query['location.area'] = area;
+
+      // Price Range
+      if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) query.price.$gte = Number(minPrice);
+        if (maxPrice) query.price.$lte = Number(maxPrice);
+      }
+
+      // Number of Bedrooms Range
+      if (minBedrooms || maxBedrooms) {
+        query['propertyFeatures.noOfBedrooms'] = {};
+        if (minBedrooms) query['propertyFeatures.noOfBedrooms'].$gte = Number(minBedrooms);
+        if (maxBedrooms) query['propertyFeatures.noOfBedrooms'].$lte = Number(maxBedrooms);
+      }
+
+      // Additional Features
+      // if (additionalFeatures) query['propertyFeatures.additionalFeatures'] = { $in: additionalFeatures };
+
+      //  // Owner Type
+      //  if (ownerModel) query.ownerModel = ownerModel;
+
+      // Availability
+      query.isAvailable = true;
+      // Usage
+      if (usageOptions) query.usageOptions = { $in: usageOptions };
+
+      // Search Properties
+      const properties = await DB.Models.PropertySell.find(query).sort({ createdAt: -1 });
+
+      return properties;
     } catch (error) {
       console.error(error);
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message);

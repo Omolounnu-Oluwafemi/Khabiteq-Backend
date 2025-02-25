@@ -149,16 +149,29 @@ router.delete('/delete/:_id', async (req: Request, res: Response, next: NextFunc
 
 router.post('/search', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { propertyType, location, budgetMin, budgetMax, features } = validator.validate(
-      req.body,
-      'propertyRentSearchSchema'
-    );
-    const properties = await propertySellControl.getPropertiesFuzzy({
+    const {
       propertyType,
-      location,
-      budgetMin,
-      budgetMax,
-      features,
+      state,
+      localGovernment,
+      area,
+      minPrice,
+      maxPrice,
+      minBedrooms,
+      maxBedrooms,
+      usageOptions,
+      additionalFeatures,
+    } = validator.validate(req.body, 'propertySellSearchSchema');
+    const properties = await propertySellControl.getPropertiesFuzzySearch({
+      propertyType,
+      state,
+      localGovernment,
+      area,
+      minPrice,
+      maxPrice,
+      minBedrooms,
+      maxBedrooms,
+      usageOptions,
+      additionalFeatures,
     });
     return res.status(HttpStatusCodes.OK).send(properties);
   } catch (error) {

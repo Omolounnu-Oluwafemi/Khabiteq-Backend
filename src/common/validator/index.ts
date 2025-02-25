@@ -11,6 +11,7 @@ enum validatorSchemaNames {
   propertyRentSchema = 'propertyRentSchema',
   googleSignupSchema = 'googleSignupSchema',
   propertyRentSearchSchema = 'propertyRentSearchSchema',
+  propertySellSearchSchema = 'propertySellSearchSchema',
 }
 
 class Validator {
@@ -219,15 +220,15 @@ class Validator {
       .string()
       .required()
       .valid(...Object.values(propertySell.getPropertyType)),
-    location: joi
-      .object({
-        state: joi.string().required(),
-        localGovernment: joi.string().required(),
-        area: joi.string().required(),
-      })
-      .required(),
-    budgetMin: joi.number().required(),
-    budgetMax: joi.number().required(),
+    state: joi.string().required(),
+    localGovernment: joi.string().required(),
+    area: joi.string().required(),
+    minPrice: joi.number().required(),
+    maxPrice: joi.number().required(),
+    minBedrooms: joi.number().required(),
+    maxBedrooms: joi.number().required(),
+    usageOptions: joi.array().items(joi.string()).required(),
+    additionalFeatures: joi.array().items(joi.string()).optional(),
   });
 
   public validate(data: any, schemaName: keyof typeof validatorSchemaNames) {
