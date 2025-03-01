@@ -4,6 +4,8 @@ import { RouteError } from '../../common/classes';
 import { IPropertyRent } from '../../models/index';
 import { DB } from '../index';
 import Fuse from 'fuse.js';
+import { buyerPropertyRentPreferenceTemplate, propertyRentPreferenceTemplate } from '../../common/email.template';
+import sendEmail from '../../common/send.email';
 
 interface PropertyRentProps {
   propertyType: string;
@@ -112,6 +114,33 @@ export class BuyerOrRentPropertyRentController implements IBuyerOrRentPropertyRe
         owner: owner._id,
         ownerModel: 'BuyerOrRenter',
       });
+
+      const mailBody = propertyRentPreferenceTemplate(PropertyRent);
+      const buyerMailBody = buyerPropertyRentPreferenceTemplate(PropertyRent);
+      const allAgents = await DB.Models.Agent.find({}).exec();
+      allAgents.forEach(async (agent) => {
+        await sendEmail({
+          to: agent.email,
+          subject: 'New Property Rent Request',
+          text: mailBody,
+          html: mailBody,
+        });
+      });
+
+      await sendEmail({
+        to: process.env.ADMIN_EMAIL,
+        subject: 'Property Rent Request',
+        text: mailBody,
+        html: mailBody,
+      });
+
+      await sendEmail({
+        to: PropertyRent.owner.email,
+        subject: 'Property Rent Request',
+        text: buyerMailBody,
+        html: buyerMailBody,
+      });
+
       return newPropertyRent;
     } catch (err) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);

@@ -159,6 +159,20 @@ router.put('/onboard', async (req: Request, res: Response, next: NextFunction) =
   }
 });
 
+router.get('/profile', async (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user as IAgentDoc;
+
+  if (!user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+  const { password, ...others } = user.toObject();
+  return res.status(200).json({
+    success: true,
+    data: others,
+  });
+});
+
 router.post('/upload/image', async (req: Request & { file?: any }, res: Response, next: NextFunction) => {
   try {
     const { image } = req.body;

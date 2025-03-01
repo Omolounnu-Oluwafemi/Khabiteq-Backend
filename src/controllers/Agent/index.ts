@@ -217,7 +217,8 @@ export class AgentController implements IAgentController {
     };
 
     const token = signJwt(payload);
-    return { ...user.toObject(), token: token };
+    const { password, ...newUser } = user.toObject();
+    return { ...newUser, token: token };
   }
 
   public async login(agentCredential: { email: string; password: string }): Promise<any> {
