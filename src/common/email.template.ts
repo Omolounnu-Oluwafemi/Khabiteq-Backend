@@ -575,3 +575,17 @@ export function buyerPropertySellPreferenceTemplate(data: any) {
         </html>
         `;
 }
+
+export function ForgotPasswordVerificationTemplate(email: string, verificationLink: string): string {
+  return `
+                        <html>
+                        <body>
+                                <p>Dear ${email},</p>
+                                <p>You requested to reset your password. Please click the link below to reset your password:</p>
+                                <p>🔗 <a href="${verificationLink}">Reset Password</a></p>
+                                <p>Best regards,<br/>
+                                Khabi-Teq Realty</p>
+                        </body>
+                        </html>
+                `;
+}

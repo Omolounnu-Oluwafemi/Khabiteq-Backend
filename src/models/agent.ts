@@ -6,6 +6,7 @@ export interface IAgent {
   firstName: string;
   lastName: string;
   phoneNumber: string;
+  isAccountInRecovery: boolean;
   address: {
     street: string;
     city: string;
@@ -50,6 +51,7 @@ export class Agent {
           state: { type: String },
           localGovtArea: { type: String },
         },
+        isAccountInRecovery: { type: Boolean, default: false },
         profile_picture: { type: String },
         regionOfOperation: { type: String },
         agentType: { type: String, enum: ['Individual', 'Company'] },

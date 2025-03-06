@@ -11,6 +11,10 @@ import {
   IBuyerOrRentModel,
   IPropertyRequestModel,
   PropertyRequest,
+  IInspectionSlotModel,
+  IInspectionBookingModel,
+  InspectionSlot,
+  InspectionBooking,
 } from '../models/index';
 import { IOwnerModel, Owner } from '../models/property.owner';
 
@@ -21,6 +25,8 @@ declare interface IModels {
   Agent: IAgentModel;
   BuyerOrRent: IBuyerOrRentModel;
   PropertyRequest: IPropertyRequestModel;
+  InspectionSlot: IInspectionSlotModel;
+  InspectionBooking: IInspectionBookingModel;
 }
 
 export class DB {
@@ -46,6 +52,8 @@ export class DB {
       Agent: new Agent().model,
       BuyerOrRent: new BuyerOrRent().model,
       PropertyRequest: new PropertyRequest().model,
+      InspectionSlot: new InspectionSlot().model,
+      InspectionBooking: new InspectionBooking().model,
     };
   }
 

@@ -110,6 +110,54 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
   }
 });
 
+/******************************************************************************
+ *                      get password reset link details - "POST /api/auth/forgot-password"
+ ******************************************************************************/
+
+router.post('/request-password-reset', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: 'Please provide your email',
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        message: 'Invalid email format',
+      });
+    }
+    const response = await agentControl.forgotPasswordResetLink(email);
+    return res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/******************************************************************************
+ *                      reset password - "POST /api/auth/reset-password"
+ ******************************************************************************/
+
+router.post('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        message: 'Token and password are required',
+      });
+    }
+
+    const response = await agentControl.resetPassword(token, password);
+    return res.status(200).json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.use(authorize);
 
 /******************************************************************************
@@ -228,6 +276,29 @@ router.post('/confirm-property', async (req: Request, res: Response, next: NextF
     const response = await agentControl.confirmPropertyAvailability(requestId, isAvailable);
     return res.status(HttpStatusCodes.OK).json({
       message: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/******************************************************************************
+ * All preferences from buyers/renters  - "POST /api/agent/preferences"
+ */
+
+router.get('/preferences', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const rentPreferences = await DB.Models.PropertyRent.find({
+      ownerModel: 'BuyerOrRenter',
+    });
+
+    const sellPreferences = await DB.Models.PropertySell.find({
+      ownerModel: 'BuyerOrRenter',
+    });
+
+    return res.status(200).json({
+      rentPreferences,
+      sellPreferences,
     });
   } catch (error) {
     next(error);

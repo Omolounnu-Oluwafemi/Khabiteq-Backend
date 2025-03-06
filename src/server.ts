@@ -9,6 +9,7 @@ dotenv.config();
 import BaseRouter from './routes';
 import { RouteError } from './common/classes';
 import cors from 'cors';
+import CronJob from './common/cron.job';
 
 // Init Auth service
 require('./services/authorize');
@@ -36,6 +37,8 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.use(express.static('public'));
+
+CronJob();
 
 // Add APIs
 

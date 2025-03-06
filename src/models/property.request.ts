@@ -1,12 +1,16 @@
-import { Schema, model, Document, Model } from 'mongoose';
+import { Schema, model, Document, Model, ObjectId } from 'mongoose';
 import { propertyOwner } from '../common/constants';
 
 export interface IPropertyRequest {
-  propertyId: string;
-  requestFrom: string;
-  status: string;
+  propertyId: ObjectId;
+  requestFrom: ObjectId;
+  status: 'Pending' | 'Accepted' | 'Rejected';
   propertyModel: 'PropertySell' | 'PropertyRent';
   inspectionDate?: Date;
+  inspectionTime?: string;
+  slotId?: ObjectId;
+  // bookedBy?: string;
+  // bookedByModel?: string;
 }
 
 export interface IPropertyRequestDoc extends IPropertyRequest, Document {}
@@ -24,6 +28,11 @@ export class PropertyRequest {
         status: { type: String, required: true, enum: ['Pending', 'Accepted', 'Rejected'] },
         propertyModel: { type: String, required: true, enum: ['PropertySell', 'PropertyRent'] },
         inspectionDate: { type: Date },
+
+        inspectionTime: { type: String },
+        slotId: { type: Schema.Types.ObjectId, ref: 'InspectionSlot' },
+        // bookedBy: { type: Schema.Types.ObjectId, refPath: 'bookedByModel' },
+        // bookedByModel: { type: String }, // Can be 'BuyerOrRenter', 'Agent', etc.
       },
       {
         timestamps: true,

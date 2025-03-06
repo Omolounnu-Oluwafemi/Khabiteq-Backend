@@ -10,7 +10,7 @@ import BuyPropertySellRequest from './buyer_rent_property_sell.api.actions';
 
 import express from 'express';
 import multer from 'multer';
-import { PropertyRequestController } from '../controllers';
+import { DB, PropertyRequestController } from '../controllers';
 import { RouteError } from '../common/classes';
 import jwt from 'jsonwebtoken';
 
@@ -60,9 +60,22 @@ router.post('/property/request-inspection', async (req: Request, res: Response) 
   }
 });
 
+router.get('/all/inspection-slots', async (req: Request, res: Response) => {
+  try {
+    const slots = await DB.Models.InspectionSlot.find({
+      slotStatus: 'available',
+      slotDate: { $gte: new Date(new Date().setDate(new Date().getDate() + 3)) },
+    });
+    return res.status(HttpStatusCodes.OK).json({ slots });
+  } catch (error) {
+    console.error(error);
+    res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message || 'Internal server error' });
+  }
+});
+
 router.post('/property/schedule-inspection', async (req: Request, res: Response) => {
   try {
-    const { token, inspectionDate } = req.body;
+    const { token, inspectionDate, slotId, inspectionTime } = req.body;
 
     if (!token || !inspectionDate)
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Token and inspection date are required');
@@ -71,9 +84,9 @@ router.post('/property/schedule-inspection', async (req: Request, res: Response)
 
     if (!requestId) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid token');
 
-    await propertyRequest.scheduleInspection(requestId, inspectionDate);
+    const response = await propertyRequest.scheduleInspection(requestId, inspectionDate, slotId, inspectionTime);
 
-    return res.status(HttpStatusCodes.OK).json({ message: 'Inspection scheduled successfully' });
+    return res.status(HttpStatusCodes.OK).json(response);
   } catch (error) {
     console.error(error);
     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message || 'Internal server error' });

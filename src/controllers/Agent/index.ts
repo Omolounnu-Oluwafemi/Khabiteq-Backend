@@ -12,7 +12,11 @@ import HttpStatusCodes from '../../common/HttpStatusCodes';
 import validator from '../../common/validator';
 import cloudinaryApiUpload from '../../common/cloudinary';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
-import { propertyAvailableTemplate, verifyEmailTemplate } from '../../common/email.template';
+import {
+  ForgotPasswordVerificationTemplate,
+  propertyAvailableTemplate,
+  verifyEmailTemplate,
+} from '../../common/email.template';
 import sendEmail from '../../common/send.email';
 import { propertyNotAvailableTemplate } from '../../common/email.template';
 
@@ -46,6 +50,8 @@ export interface IAgentController {
     phoneNumber: string
   ) => Promise<IAgent>;
   login: (agentCredential: { email: string; password: string }) => Promise<any>;
+  forgotPasswordResetLink: (email: string) => Promise<any>;
+  resetPassword: (token: string, password: string) => Promise<any>;
   onboard: (
     email: string,
     address: {
@@ -70,6 +76,9 @@ export interface IAgentController {
     firstName: string
   ) => Promise<any>;
   uploadImage: (image: any) => Promise<any>;
+
+  googleSignup: (idToken: string) => Promise<IAgent & { token: string }>;
+  googleLogin: (idToken: string) => Promise<any>;
 }
 
 export class AgentController implements IAgentController {
@@ -253,10 +262,63 @@ export class AgentController implements IAgentController {
         id: user._id,
       };
 
+      user.isAccountInRecovery = false;
+
+      await user.save();
+
       const token = signJwt(payload);
       return { user: user.toObject(), token: token };
     } catch (err) {
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, err.message);
+    }
+  }
+
+  public async forgotPasswordResetLink(email: string): Promise<any> {
+    try {
+      const user = await DB.Models.Agent.findOne({ email });
+      if (!user) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User not found');
+
+      const token = signJwt({ email: user.email });
+
+      user.isAccountInRecovery = true;
+      await user.save();
+
+      const resetPasswordLink = process.env.CLIENT_LINK + '/agent/auth/reset-password?token=' + token;
+      console.log('resetPasswordLink', resetPasswordLink);
+      const mailBody = ForgotPasswordVerificationTemplate(user.firstName || user.email, resetPasswordLink);
+
+      await sendEmail({
+        to: email,
+        subject: 'Reset Password',
+        text: 'Reset Password',
+        html: mailBody,
+      });
+
+      return { success: true, message: 'Reset password link sent to your email' };
+    } catch (error) {
+      console.error(error);
+      throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    }
+  }
+
+  public async resetPassword(token: string, password: string): Promise<any> {
+    try {
+      const { email } = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+      if (!email) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid token');
+
+      const user = await DB.Models.Agent.findOne({ email });
+      if (!user) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'User not found');
+
+      // if (!user.isAccountInRecovery) throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid token');
+
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      await DB.Models.Agent.findByIdAndUpdate(user._id, { password: passwordHash, isAccountInRecovery: false }).exec();
+
+      return { success: true, message: 'Password reset successful' };
+    } catch (error) {
+      console.error(error);
+      throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message);
     }
   }
 
@@ -315,7 +377,8 @@ export class AgentController implements IAgentController {
           { expiresIn: '3d' }
         );
 
-        const calendlyLink = `${process.env.CLIENT_LINK}/schedule-inspection?token=${encodedData}`;
+        const calendlyLink = `${process.env.CLIENT_LINK}/slots?token=${encodedData}`;
+        console.log('calendlyLink', calendlyLink);
 
         mailBody = propertyAvailableTemplate(
           requester.email,
