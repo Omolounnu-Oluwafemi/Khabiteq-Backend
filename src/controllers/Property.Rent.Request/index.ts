@@ -244,8 +244,8 @@ export class BuyerOrRentPropertyRentController implements IBuyerOrRentPropertyRe
 
       // Match location (state, local government, area)
       if (state) query['location.state'] = state;
-      if (localGovernment) query['location.localGovernment'] = localGovernment;
-      if (area) query['location.area'] = area;
+      // if (localGovernment) query['location.localGovernment'] = localGovernment;
+      // if (area) query['location.area'] = area;
 
       // Price range filter
       if (budgetMin || budgetMax) {

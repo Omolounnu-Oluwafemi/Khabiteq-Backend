@@ -201,8 +201,8 @@ export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySe
 
       // Filter by Location
       if (state) query['location.state'] = state;
-      if (localGovernment) query['location.localGovernment'] = localGovernment;
-      if (area) query['location.area'] = area;
+      // if (localGovernment) query['location.localGovernment'] = localGovernment;
+      // if (area) query['location.area'] = area;
 
       // Price Range
       if (minPrice || maxPrice) {
