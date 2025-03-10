@@ -381,7 +381,7 @@ export class AgentController implements IAgentController {
         console.log('calendlyLink', calendlyLink);
 
         mailBody = propertyAvailableTemplate(
-          requester.email,
+          requester.fullName || requester.email,
           `${property.location.area}, ${property.location.localGovernment}, ${property.location.state}`,
           calendlyLink
         );
