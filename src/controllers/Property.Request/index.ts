@@ -8,7 +8,7 @@ import HttpStatusCodes from '../../common/HttpStatusCodes';
 import { ObjectId } from 'mongoose';
 
 interface IPropertyRequest {
-  propertyId: string;
+  propertyId: any;
   requestFrom: {
     fullName: string;
     phoneNumber: string;
@@ -40,6 +40,7 @@ export class PropertyRequestController implements IPropertRequestController {
     }
 
     let requestFrm = await DB.Models.BuyerOrRent.findOne({ email: requestFrom.email }).exec();
+    let request;
 
     if (!requestFrm) {
       requestFrm = await DB.Models.BuyerOrRent.create({
@@ -47,6 +48,14 @@ export class PropertyRequestController implements IPropertRequestController {
         ownerType: propertyType === 'PropertySell' ? 'Buyer' : 'Rent',
       });
     }
+
+    request = await DB.Models.PropertyRequest.findOne({ propertyId, requestFrom: requestFrm._id }).exec();
+    console.log(request);
+
+    if (request) {
+      throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'You have already requested for this property');
+    }
+
     await DB.Models.PropertyRequest.create({
       propertyId,
       requestFrom: requestFrm._id,

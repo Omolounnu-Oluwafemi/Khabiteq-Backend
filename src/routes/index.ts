@@ -53,7 +53,7 @@ router.post('/property/request-inspection', async (req: Request, res: Response) 
 
     await propertyRequest.requestProperty({ propertyId, requestFrom, propertyType });
 
-    return res.status(HttpStatusCodes.OK).json({ message: 'Request sent successfully' });
+    return res.status(HttpStatusCodes.OK).json({ success: true, message: 'Request sent successfully' });
   } catch (error) {
     console.error(error);
     res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ message: error.message || 'Internal server error' });
