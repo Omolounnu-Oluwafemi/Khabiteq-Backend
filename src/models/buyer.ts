@@ -18,7 +18,7 @@ export class BuyerOrRent {
   constructor() {
     const schema = new Schema(
       {
-        fullName: { type: String, required: true, unique: true },
+        fullName: { type: String, required: true },
         email: { type: String, required: true },
         phoneNumber: { type: String, required: true },
         ownerType: { type: String, required: true, enum: ['Buyer', 'Rent'] },
