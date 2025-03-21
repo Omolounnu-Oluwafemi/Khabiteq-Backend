@@ -30,14 +30,15 @@ interface PropertyRentProps {
   areYouTheOwner: boolean;
   budgetRange?: string;
   pictures?: string[];
+  isApproved?: boolean;
 }
 
 export interface IPropertyRentController {
-  all: () => Promise<IPropertyRent[]>;
+  all: (page: number, limit: number) => Promise<{ data: IPropertyRent[]; total: number; currentPage: number }>;
   getOne: (_id: string) => Promise<IPropertyRent | null>;
   add: (PropertyRent: PropertyRentProps) => Promise<IPropertyRent>;
   update: (_id: string, PropertyRent: PropertyRentProps) => Promise<IPropertyRent>;
-  delete: (_id: string) => Promise<void>;
+  delete: (_id: string, ownerModel?: string) => Promise<void>;
 }
 
 export class PropertyRentController implements IPropertyRentController {
@@ -46,7 +47,7 @@ export class PropertyRentController implements IPropertyRentController {
    */
   public async getOne(_id: string): Promise<IPropertyRent | null> {
     try {
-      const data = await DB.Models.PropertyRent.find({ _id }).exec();
+      const data = await DB.Models.PropertyRent.find({ _id, ownerModel: 'PropertyOwner' }).exec();
       if (data) {
         return data[0];
       }
@@ -59,14 +60,28 @@ export class PropertyRentController implements IPropertyRentController {
   /**
    *
    */
-  public async all(): Promise<IPropertyRent[]> {
+  public async all(
+    page: number,
+    limit: number,
+    ownerModel?: string
+  ): Promise<{ data: IPropertyRent[]; total: number; currentPage: number }> {
     try {
-      const data = await DB.Models.PropertyRent.find({}).populate({
-        path: 'owner',
-        refPath: 'ownerModel',
-        select: 'fullName phoneNumber email firstName lastName',
-      });
-      return data;
+      if (!ownerModel) {
+        const data = await DB.Models.PropertyRent.find({})
+          .skip((page - 1) * limit)
+          .limit(limit)
+          .sort({ createdAt: -1 })
+          .exec();
+        const total = await DB.Models.PropertyRent.countDocuments().exec();
+        return { data, total, currentPage: page };
+      }
+      const data = await DB.Models.PropertyRent.find({ ownerModel })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec();
+      const total = await DB.Models.PropertyRent.find({ ownerModel }).countDocuments().exec();
+      return { data, total, currentPage: page };
     } catch (err) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);
     }
@@ -87,7 +102,9 @@ export class PropertyRentController implements IPropertyRentController {
         });
       } else if (agent && !owner) {
         owner = agent as any;
+        PropertyRent.isApproved = true;
       }
+
       const newPropertyRent = await DB.Models.PropertyRent.create({
         ...PropertyRent,
         owner: owner._id,
@@ -151,9 +168,9 @@ export class PropertyRentController implements IPropertyRentController {
    *
    * @param id
    */
-  public async delete(_id: string): Promise<void> {
+  public async delete(_id: string, ownerModel?: string): Promise<void> {
     try {
-      await DB.Models.PropertyRent.findByIdAndDelete({ _id }).exec();
+      await DB.Models.PropertyRent.findByIdAndDelete({ _id, ownerModel }).exec();
     } catch (err) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);
     }

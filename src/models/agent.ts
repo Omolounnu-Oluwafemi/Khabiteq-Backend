@@ -27,6 +27,8 @@ export interface IAgent {
   };
   doc: string;
   isAccountVerified: boolean;
+  isInActive?: boolean;
+  isDeleted?: boolean;
 }
 
 export interface IAgentDoc extends IAgent, Document {}
@@ -66,6 +68,8 @@ export class Agent {
 
         doc: { type: String },
         isAccountVerified: { type: Boolean, default: false },
+        isInActive: { type: Boolean, default: false },
+        isDeleted: { type: Boolean, default: false },
       },
       {
         timestamps: true,

@@ -31,6 +31,7 @@ interface PropertySellProps {
   usageOptions: string[];
   budgetRange?: string;
   pictures?: string[];
+  isApproved?: boolean;
 }
 
 interface PropertySearchProps {
@@ -47,7 +48,7 @@ interface PropertySearchProps {
 }
 
 export interface IBuyerOrRentPropertySellController {
-  all: () => Promise<IPropertySell[]>;
+  all: (page: number, limit: number) => Promise<{ data: IPropertySell[]; total: number; currentPage: number }>;
   getOne: (_id: string) => Promise<IPropertySell | null>;
   add: (PropertySell: PropertySellProps) => Promise<IPropertySell>;
   update: (_id: string, PropertySell: PropertySellProps) => Promise<IPropertySell>;
@@ -74,10 +75,17 @@ export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySe
   /**
    *
    */
-  public async all(): Promise<IPropertySell[]> {
+  public async all(
+    page: number,
+    limit: number
+  ): Promise<{ data: IPropertySell[]; total: number; currentPage: number }> {
     try {
-      const data = await DB.Models.PropertySell.find({}).exec();
-      return data;
+      const data = await DB.Models.PropertySell.find({})
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec();
+      const total = await DB.Models.PropertySell.countDocuments({}).exec();
+      return { data, total, currentPage: page };
     } catch (err) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);
     }
@@ -98,6 +106,7 @@ export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySe
         });
       } else if (agent && !owner) {
         owner = agent as any;
+        PropertySell.isApproved = true;
       }
       const newPropertySell = await DB.Models.PropertySell.create({
         ...PropertySell,

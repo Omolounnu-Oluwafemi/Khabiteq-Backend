@@ -24,6 +24,8 @@ export interface IPropertyRent {
   isAvailable: string;
   budgetRange?: string;
   pictures?: string[];
+  isApproved: boolean;
+  isRejected?: boolean;
 }
 
 export interface IPropertyRentDoc extends IPropertyRent, Document {}
@@ -68,6 +70,8 @@ export class PropertyRent {
         isAvailable: { type: Boolean, default: true },
         budgetRange: { type: String },
         pictures: [{ type: String }],
+        isApproved: { type: Boolean, default: false },
+        isRejected: { type: Boolean, default: false },
       },
       {
         timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },

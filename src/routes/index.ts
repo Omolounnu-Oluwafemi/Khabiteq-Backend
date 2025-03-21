@@ -13,6 +13,7 @@ import multer from 'multer';
 import { DB, PropertyRequestController } from '../controllers';
 import { RouteError } from '../common/classes';
 import jwt from 'jsonwebtoken';
+import AdminRouter from './admin';
 
 const router = express.Router();
 
@@ -94,6 +95,7 @@ router.post('/property/schedule-inspection', async (req: Request, res: Response)
 });
 
 // Add sub-routes
+router.use('/admin', AdminRouter);
 router.use('/agent', AgentRouter);
 router.use('/properties/rents', PropertyRentRouter);
 router.use('/properties/sell', PropertySellRouter);

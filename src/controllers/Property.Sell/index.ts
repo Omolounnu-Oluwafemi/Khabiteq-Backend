@@ -30,14 +30,19 @@ interface PropertySellProps {
   usageOptions: string[];
   budgetRange?: string;
   pictures?: string[];
+  isApproved?: boolean;
 }
 
 export interface IPropertySellController {
-  all: () => Promise<IPropertySell[]>;
+  all: (
+    page: number,
+    limit: number,
+    ownerModel: string
+  ) => Promise<{ data: IPropertySell[]; total: number; currentPage: number }>;
   getOne: (_id: string) => Promise<IPropertySell | null>;
   add: (PropertySell: PropertySellProps) => Promise<IPropertySell>;
   update: (_id: string, PropertySell: PropertySellProps) => Promise<IPropertySell>;
-  delete: (_id: string) => Promise<void>;
+  delete: (_id: string, ownerType?: string) => Promise<void>;
 }
 
 export class PropertySellController implements IPropertySellController {
@@ -59,10 +64,26 @@ export class PropertySellController implements IPropertySellController {
   /**
    *
    */
-  public async all(): Promise<IPropertySell[]> {
+  public async all(
+    page: number,
+    limit: number,
+    ownerModel?: string
+  ): Promise<{ data: IPropertySell[]; total: number; currentPage: number }> {
     try {
-      const data = await DB.Models.PropertySell.find({}).exec();
-      return data;
+      if (page < 1 || limit < 1) {
+        throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid page or limit');
+      }
+      const skip = (page - 1) * limit;
+      const data = await DB.Models.PropertySell.find({ ownerModel })
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec();
+      return {
+        data,
+        total: await DB.Models.PropertySell.find({ ownerModel }).countDocuments({}),
+        currentPage: page,
+      };
     } catch (err) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);
     }
@@ -83,6 +104,7 @@ export class PropertySellController implements IPropertySellController {
         });
       } else if (agent && !owner) {
         owner = agent as any;
+        PropertySell.isApproved = true;
       }
       const newPropertySell = await DB.Models.PropertySell.create({
         ...PropertySell,
@@ -143,9 +165,9 @@ export class PropertySellController implements IPropertySellController {
    *
    * @param id
    */
-  public async delete(_id: string): Promise<void> {
+  public async delete(_id: string, ownerType?: string): Promise<void> {
     try {
-      await DB.Models.PropertySell.findByIdAndDelete({ _id }).exec();
+      await DB.Models.PropertySell.findByIdAndDelete({ _id, ownerType }).exec();
     } catch (err) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, err.message);
     }

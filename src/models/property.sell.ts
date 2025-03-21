@@ -25,6 +25,8 @@ export interface IPropertySell {
   isAvailable: boolean;
   budgetRange?: string;
   pictures?: string[];
+  isApproved: boolean;
+  isRejected?: boolean;
 }
 
 export interface IPropertySellDoc extends IPropertySell, Document {}
@@ -67,6 +69,8 @@ export class PropertySell {
         isAvailable: { type: Boolean, default: true },
         budgetRange: { type: String },
         pictures: [{ type: String }],
+        isApproved: { type: Boolean, default: false },
+        isRejected: { type: Boolean, default: false },
       },
       {
         timestamps: true,
