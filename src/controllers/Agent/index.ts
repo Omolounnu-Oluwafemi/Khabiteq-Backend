@@ -283,10 +283,6 @@ export class AgentController implements IAgentController {
         );
       }
 
-      if (!user.accountApproved) {
-        throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Account is under review.');
-      }
-
       const payload = {
         email: user.email,
         agentType: user.agentType,
@@ -298,6 +294,10 @@ export class AgentController implements IAgentController {
       await user.save();
 
       const token = signJwt(payload);
+
+      if (!user.accountApproved) {
+        return { user: user.toObject(), token: token, isAccountApproved: false };
+      }
       return { user: user.toObject(), token: token };
     } catch (err) {
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, err.message);
