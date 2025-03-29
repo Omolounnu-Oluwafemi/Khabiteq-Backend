@@ -79,23 +79,31 @@ class Validator {
     token: joi.string().required(),
     address: joi.object({
       street: joi.string().required(),
-      city: joi.string().required(),
+      // city: joi.string().required(),
       state: joi.string().required(),
       localGovtArea: joi.string().required(),
     }),
-    regionOfOperation: joi.string().required(),
+    regionOfOperation: joi.array().items(joi.string()).required(),
     agentType: joi.string().valid('Individual', 'Company').required(),
     companyAgent: joi.object({
       companyName: joi.string().required(),
-      regNumber: joi.string().required(),
+      // regNumber: joi.string().required(),
     }),
     individualAgent: joi
       .object({
         typeOfId: joi.string().required(),
-        idNumber: joi.string().required(),
+        // idNumber: joi.string().required(),
       })
       .optional(),
-    doc: joi.string().required(),
+    meansOfId: joi
+      .array()
+      .items(
+        joi.object({
+          name: joi.string().required(),
+          docImg: joi.array().items(joi.string()).required(),
+        })
+      )
+      .required(),
     phoneNumber: joi.string().required(),
     firstName: joi.string().required(),
     lastName: joi.string().required(),
@@ -213,6 +221,8 @@ class Validator {
     budgetMin: joi.number().required(),
     budgetMax: joi.number().required(),
     features: joi.string().optional(),
+    minLandSize: joi.number().optional(),
+    maxLandSize: joi.number().optional(),
   });
 
   private propertySellSearchSchema = joi.object({
@@ -229,6 +239,8 @@ class Validator {
     maxBedrooms: joi.number().required(),
     usageOptions: joi.array().items(joi.string()).required(),
     additionalFeatures: joi.array().items(joi.string()).optional(),
+    minLandSize: joi.number().optional(),
+    maxLandSize: joi.number().optional(),
   });
 
   public validate(data: any, schemaName: keyof typeof validatorSchemaNames) {

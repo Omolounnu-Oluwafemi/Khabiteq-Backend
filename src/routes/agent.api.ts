@@ -173,7 +173,7 @@ router.put('/onboard', async (req: Request, res: Response, next: NextFunction) =
       agentType,
       companyAgent,
       individualAgent,
-      doc,
+      meansOfId,
       phoneNumber,
       lastName,
       firstName,
@@ -190,11 +190,10 @@ router.put('/onboard', async (req: Request, res: Response, next: NextFunction) =
       agentType,
       companyAgent,
       individualAgent,
-      doc,
       phoneNumber,
-
       lastName,
-      firstName
+      firstName,
+      meansOfId
     );
     return res.status(HttpStatusCodes.OK).json({
       message: 'Agent information updated successfully',

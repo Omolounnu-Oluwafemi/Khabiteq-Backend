@@ -9,26 +9,31 @@ export interface IAgent {
   isAccountInRecovery: boolean;
   address: {
     street: string;
-    city: string;
+    // city: string;
     state: string;
     localGovtArea: string;
   };
   fullName?: string;
   profile_picture: string;
-  regionOfOperation: string;
+  regionOfOperation: string[];
   agentType: string;
   companyAgent: {
     companyName?: string;
-    regNumber?: string;
+    // regNumber?: string;
   };
   individualAgent: {
     typeOfId: string;
-    idNumber: string;
+    // idNumber: string;
   };
-  doc: string;
   isAccountVerified: boolean;
   isInActive?: boolean;
   isDeleted?: boolean;
+  accountApproved?: boolean;
+  accountStatus?: string;
+  meansOfId: {
+    name: string;
+    docImg: string[];
+  }[];
 }
 
 export interface IAgentDoc extends IAgent, Document {}
@@ -49,27 +54,33 @@ export class Agent {
         fullName: { type: String },
         address: {
           street: { type: String },
-          city: { type: String },
+          // city: { type: String },
           state: { type: String },
           localGovtArea: { type: String },
         },
         isAccountInRecovery: { type: Boolean, default: false },
         profile_picture: { type: String },
-        regionOfOperation: { type: String },
+        regionOfOperation: { type: [String] },
         agentType: { type: String, enum: ['Individual', 'Company'] },
         companyAgent: {
           companyName: { type: String },
-          regNumber: { type: String },
+          // regNumber: { type: String },
         },
         individualAgent: {
           typeOfId: { type: String },
-          idNumber: { type: String },
+          // idNumber: { type: String },
         },
-
-        doc: { type: String },
         isAccountVerified: { type: Boolean, default: false },
         isInActive: { type: Boolean, default: false },
         isDeleted: { type: Boolean, default: false },
+        accountApproved: { type: Boolean, default: false },
+        accountStatus: { type: String, enum: ['active', 'inactive', 'deleted'], default: 'active' },
+        meansOfId: [
+          {
+            name: { type: String },
+            docImg: { type: [String] },
+          },
+        ],
       },
       {
         timestamps: true,
@@ -82,30 +93,30 @@ export class Agent {
     //   return `${this.firstName} ${this.lastName}`;
     // });
 
-    schema.pre('updateOne', function (next) {
-      const update = (this as any).getUpdate();
+    // schema.pre('updateOne', function (next) {
+    //   const update = (this as any).getUpdate();
 
-      // Check if `agentType` is being updated
-      if (update && update.agentType) {
-        if (update.agentType === 'individual') {
-          // Ensure `individualAgent` is provided
-          if (!update.individualAgent || !update.individualAgent.typeOfId || !update.individualAgent.idNumber) {
-            return next(new Error('For individual agents, typeOfId and idNumber are required.'));
-          }
-          // Clear `companyAgent` if agent type is individual
-          update.companyAgent = undefined;
-        } else if (update.agentType === 'company') {
-          // Ensure `companyAgent` is provided
-          if (!update.companyAgent || !update.companyAgent.companyName || !update.companyAgent.regNUmber) {
-            return next(new Error('For company agents, companyName and regNUmber are required.'));
-          }
-          // Clear `individualAgent` if agent type is company
-          update.individualAgent = undefined;
-        }
-      }
+    //   // Check if `agentType` is being updated
+    //   if (update && update.agentType) {
+    //     if (update.agentType === 'individual') {
+    //       // Ensure `individualAgent` is provided
+    //       if (!update.individualAgent || !update.individualAgent.typeOfId || !update.individualAgent.idNumber) {
+    //         return next(new Error('For individual agents, typeOfId and idNumber are required.'));
+    //       }
+    //       // Clear `companyAgent` if agent type is individual
+    //       update.companyAgent = undefined;
+    //     } else if (update.agentType === 'company') {
+    //       // Ensure `companyAgent` is provided
+    //       if (!update.companyAgent || !update.companyAgent.companyName || !update.companyAgent.regNUmber) {
+    //         return next(new Error('For company agents, companyName and regNUmber are required.'));
+    //       }
+    //       // Clear `individualAgent` if agent type is company
+    //       update.individualAgent = undefined;
+    //     }
+    //   }
 
-      next();
-    });
+    //   next();
+    // });
 
     this.AgentModel = model<IAgentDoc>('Agent', schema);
   }

@@ -1,6 +1,8 @@
 import {
+  accountApproved,
   DeactivateOrActivateAgent,
   DeleteAgent,
+  generalTemplate,
   PropertyApprovedOrDisapprovedTemplate,
 } from '../../common/email.template';
 import { DB } from '..';
@@ -172,6 +174,29 @@ export class AdminController {
       });
 
       return 'Agent deleted';
+    } catch (error) {
+      throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message);
+    }
+  }
+
+  public async approveAgent(_id: string) {
+    try {
+      const agent = await DB.Models.Agent.findByIdAndUpdate(_id, { accountApproved: true }).exec();
+
+      if (!agent) throw new RouteError(HttpStatusCodes.NOT_FOUND, 'Agent not found');
+
+      const body = accountApproved(agent.firstName);
+
+      const mailBody = generalTemplate(body);
+
+      await sendEmail({
+        to: agent.email,
+        subject: 'Account Approved',
+        text: mailBody,
+        html: mailBody,
+      });
+
+      return 'Agent approved';
     } catch (error) {
       throw new RouteError(HttpStatusCodes.INTERNAL_SERVER_ERROR, error.message);
     }

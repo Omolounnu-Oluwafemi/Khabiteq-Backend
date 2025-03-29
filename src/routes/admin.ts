@@ -75,4 +75,14 @@ AdminRouter.get('/all-agents', async (req: Request, res: Response, next: NextFun
   }
 });
 
+AdminRouter.post('/approve-agent', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { agentId } = req.body;
+    const response = await adminController.approveAgent(agentId);
+    return res.status(200).json({ success: true, response });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default AdminRouter;

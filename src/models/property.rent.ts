@@ -26,6 +26,7 @@ export interface IPropertyRent {
   pictures?: string[];
   isApproved: boolean;
   isRejected?: boolean;
+  landSize: number;
 }
 
 export interface IPropertyRentDoc extends IPropertyRent, Document {}
@@ -46,6 +47,7 @@ export class PropertyRent {
           area: { type: String, required: true },
         },
         rentalPrice: { type: Number, required: true },
+        landSize: { type: Number },
         noOfBedrooms: { type: Number, required: true },
         features: [
           {

@@ -161,6 +161,8 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
       maxBedrooms,
       usageOptions,
       additionalFeatures,
+      minLandSize,
+      maxLandSize,
     } = validator.validate(req.body, 'propertySellSearchSchema');
     const properties = await propertySellControl.getPropertiesFuzzySearch({
       propertyType,
@@ -173,6 +175,8 @@ router.post('/search', async (req: Request, res: Response, next: NextFunction) =
       maxBedrooms,
       usageOptions,
       additionalFeatures,
+      minLandSize,
+      maxLandSize,
     });
     return res.status(HttpStatusCodes.OK).send(properties);
   } catch (error) {

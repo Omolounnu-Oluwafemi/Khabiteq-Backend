@@ -1,3 +1,78 @@
+export const generalTemplate = (body: string): string => {
+  return `
+        <html>
+<head>
+    <meta charset="UTF-8">
+    <title>Inspection Confirmation</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #ffffff; height: 100%; display: flex; align-items: center; justify-content: center;">
+    
+    <!-- Main Wrapper -->
+    <table role="presentation" width="60%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f4f4f4" style="margin: auto; padding-bottom: 40px">
+        <tr>
+
+            <!-- Header Logo -->
+            <tr>
+                <td align="start" style="padding: 50px 0px 0 100px;">
+                    <img src="https://res.cloudinary.com/drlfylzhf/image/upload/fl_sanitize/v1743087585/profileImages/khabi-teq_o08xqk.svg" alt="Khabi-teq Realty Logo" width="150">
+                </td>
+            </tr>
+            <td align="center" style="padding: 30px;">
+                
+                <!-- Email Container -->
+                <table role="presentation" width="90%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+                
+                    <!-- Email Body -->
+                    <tr>
+                        <td style="padding: 40px; font-family: Arial, sans-serif; font-size: 16px; color: #333; line-height: 1.6;">
+                            ${body}
+                            <p>Best regards,</p>
+                            <p><strong>Khabiteq Realty</strong></p>
+                        </td>
+                    </tr>
+                </table>
+                                 <!-- Footer Section -->
+                                 <tr>
+                                    <td align="start" style="padding: 20px 0px 0 100px;">
+                                        
+                                        <!-- Social Media Icons -->
+                                        <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                                            <tr>
+                                                <td style="padding: 0 15px; ">
+                                                    <a href="https://www.facebook.com/profile.php?id=61568584928290&mibextid=ZbWKwL"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" width="30" alt="Facebook"></a>
+                                                </td>
+                                                <td style="padding: 0 15px;">
+                                                    <a href="https://www.instagram.com/khabiteq_realty/profilecard/?igsh=YjRvanQ3YmlmdDNl"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="30" alt="Instagram"></a>
+                                                </td>
+                                                <td style="padding: 0 15px;">
+                                                    <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" width="30" alt="LinkedIn"></a>
+                                                </td>
+                                                <td style="padding: 0 15px;">
+                                                    <a href="https://x.com/Khabi_Teq?t=Jq6MpEMfwfJ6aQ46CYGPpQ&s=09"><img src="https://cdn-icons-png.flaticon.com/512/733/733635.png" width="30" alt="Twitter"></a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+            
+                                <!-- Copyright Section -->
+                                <tr>
+                                    <td align="start" style="padding: 40px 0px 0 100px; font-family: Arial, sans-serif; font-size: 12px; color: #777;">
+                                        <img src="https://res.cloudinary.com/drlfylzhf/image/upload/v1743087585/profileImages/khabi-teq_o08xqk.svg" alt="Khabi-teq Realty Logo" width="120"><br><br>
+                                        
+                                        <p style="margin-top: 20px;">Copyright © 2020 Khabiteq Realty Limited.<br>
+                                        Block B, Suite 8SF Goldrim Plaza, Yaya Abatan, Ogba Lagos.</p>
+                                    </td>
+                                </tr>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
+        `;
+};
+
 export const propertyRequestTemplate = (buyerName: string, propertyAddress: string): string => {
   return `
                 <html>
@@ -6,7 +81,7 @@ export const propertyRequestTemplate = (buyerName: string, propertyAddress: stri
                         <p>Thank you for your interest in inspecting the property at ${propertyAddress}. We are currently
                         confirming availability and will update you shortly with the next steps.</p>
                         <p>Best regards,<br/>
-                        Khabi-Teq Realty</p>
+                        Khabi-Teq Realty</p> 
                 </body>
                 </html>
         `;
@@ -72,16 +147,26 @@ export const inspectionScheduledTemplate = (agentName: string, propertyAddress: 
 
 export const verifyEmailTemplate = (name: string, verificationLink: string): string => {
   return `
-                        <html>
-                        <body>
-                                <p>Dear ${name},</p>
-                                <p>Thank you for signing up with Khabi-Teq Realty. Please verify your email address by clicking the link below:</p>
-                                <p>🔗 <a href="${verificationLink}">Verify Email</a></p>
-                                <p>Best regards,<br/>
-                                Khabi-Teq Realty</p>
-                        </body>
-                        </html>
-                `;
+        <p>Dear ${name},</p>
+        <p>Thank you for registering with Khabi-Teq Realty. To complete your onboarding process, please verify your email address by clicking the link below:</p>
+        <p>🔗 <a href="${verificationLink}">Verify Email</a></p>
+        <p>If you did not request this, please ignore this email.</p>
+`;
+};
+
+export const accountUnderReviewTemplate = (name: string): string => {
+  return `
+        <p>Hi ${name},</p>
+        <p>Thank you for registering with Khabi-Teq Realty. Your agent account is currently under review. We are verifying your submitted documents and details. You will receive a confirmation email once your account is approved. If we require any additional information, we will reach out to you.</p>
+        `;
+};
+
+export const accountApproved = (name: string): string => {
+  return `
+                <p>Dear ${name},</p>
+                <p>Welcome to Khabi-Teq Realty! We are excited to have you join our exclusive network of partner agents. Our platform is designed to empower you with direct access to buyer preferences, streamlined transaction processes, and advanced tools to boost your business.</p>
+                <p>Get ready to unlock new opportunities and grow your real estate career with us.</p>
+        `;
 };
 
 export function generatePropertyRentBriefEmail(data: any) {

@@ -13,7 +13,9 @@ import validator from '../../common/validator';
 import cloudinaryApiUpload from '../../common/cloudinary';
 import { OAuth2Client, TokenPayload } from 'google-auth-library';
 import {
+  accountUnderReviewTemplate,
   ForgotPasswordVerificationTemplate,
+  generalTemplate,
   propertyAvailableTemplate,
   verifyEmailTemplate,
 } from '../../common/email.template';
@@ -56,11 +58,11 @@ export interface IAgentController {
     email: string,
     address: {
       street: string;
-      city: string;
+      // city: string;
       state: string;
       localGovtArea: string;
     },
-    regionOfOperation: string,
+    regionOfOperation: string[],
     agentType: string,
     companyAgent: {
       companyName?: string;
@@ -68,12 +70,15 @@ export interface IAgentController {
     },
     individualAgent: {
       typeOfId: string;
-      idNumber: string;
+      // idNumber: string;
     },
-    doc: string,
     phoneNumber: string,
     lastName: string,
-    firstName: string
+    firstName: string,
+    meansOfId: {
+      name: string;
+      docImg: string[];
+    }[]
   ) => Promise<any>;
   uploadImage: (image: any) => Promise<any>;
 
@@ -100,12 +105,13 @@ export class AgentController implements IAgentController {
 
     const verificationLink = process.env.CLIENT_LINK + '?access_token=' + token;
     const mailBody = verifyEmailTemplate(firstName, verificationLink);
+    const mail = generalTemplate(mailBody);
 
     await sendEmail({
       to: email,
       subject: 'Verify Your Email Address',
       text: 'Verify Your Email Address',
-      html: mailBody,
+      html: mail,
     });
     return { ...newUser.toObject() };
   }
@@ -114,24 +120,27 @@ export class AgentController implements IAgentController {
     email: string,
     address: {
       street: string;
-      city: string;
+      // city: string;
       state: string;
       localGovtArea: string;
     },
-    regionOfOperation: string,
+    regionOfOperation: string[],
     agentType: string,
     companyAgent: {
       companyName?: string;
-      regNUmber?: string;
+      // regNUmber?: string;
     },
     individualAgent: {
       typeOfId: string;
-      idNumber: string;
+      // idNumber: string;
     },
-    doc: string,
     phoneNumber: string,
     lastName: string,
-    firstName: string
+    firstName: string,
+    meansOfId: {
+      name: string;
+      docImg: string[];
+    }[]
   ): Promise<any> {
     let user = await DB.Models.Agent.findOne({ email }).exec();
 
@@ -147,7 +156,7 @@ export class AgentController implements IAgentController {
           regionOfOperation,
           agentType,
           companyAgent,
-          doc,
+          meansOfId: meansOfId,
           phoneNumber,
           lastName,
           firstName,
@@ -162,7 +171,7 @@ export class AgentController implements IAgentController {
           regionOfOperation,
           agentType,
           individualAgent,
-          doc,
+          meansOfId: meansOfId,
           phoneNumber,
           lastName,
           firstName,
@@ -172,6 +181,16 @@ export class AgentController implements IAgentController {
     } else {
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Invalid agent type');
     }
+
+    const body = accountUnderReviewTemplate(firstName);
+
+    const mail = generalTemplate(body);
+    await sendEmail({
+      to: email,
+      subject: 'Account Under Review',
+      text: 'Account Under Review',
+      html: mail,
+    });
 
     const token = signJwt({ email: user.email, agentType: user.agentType, id: user._id });
 
@@ -246,14 +265,26 @@ export class AgentController implements IAgentController {
 
         const verificationLink = process.env.CLIENT_LINK + '?access_token=' + token;
         const mailBody = verifyEmailTemplate(user.firstName, verificationLink);
+        const mail = generalTemplate(mailBody);
 
         await sendEmail({
           to: email,
           subject: 'Verify Your Email Address',
           text: 'Verify Your Email Address',
-          html: mailBody,
+          html: mail,
         });
         throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Account not verified');
+      }
+
+      if (user.isInActive) {
+        throw new RouteError(
+          HttpStatusCodes.BAD_REQUEST,
+          'Account has been suspended or deactivated, please contact support'
+        );
+      }
+
+      if (!user.accountApproved) {
+        throw new RouteError(HttpStatusCodes.BAD_REQUEST, 'Account is under review.');
       }
 
       const payload = {

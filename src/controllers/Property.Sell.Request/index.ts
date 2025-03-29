@@ -45,6 +45,8 @@ interface PropertySearchProps {
   maxBedrooms: number;
   usageOptions: [string];
   additionalFeatures: [string];
+  minLandSize: number;
+  maxLandSize: number;
 }
 
 export interface IBuyerOrRentPropertySellController {
@@ -201,6 +203,8 @@ export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySe
         maxBedrooms,
         usageOptions,
         additionalFeatures,
+        minLandSize,
+        maxLandSize,
       } = PropertySearch;
 
       const query: any = {};
@@ -218,6 +222,13 @@ export class BuyerOrRentPropertySellController implements IBuyerOrRentPropertySe
         query.price = {};
         if (minPrice) query.price.$gte = Number(minPrice);
         if (maxPrice) query.price.$lte = Number(maxPrice);
+      }
+
+      // Land Size Range
+      if (minLandSize || maxLandSize) {
+        query.landSize = {};
+        if (minLandSize) query.landSize.$gte = Number(minLandSize);
+        if (maxLandSize) query.landSize.$lte = Number(maxLandSize);
       }
 
       // Number of Bedrooms Range

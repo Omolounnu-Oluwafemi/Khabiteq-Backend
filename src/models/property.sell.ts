@@ -27,6 +27,7 @@ export interface IPropertySell {
   pictures?: string[];
   isApproved: boolean;
   isRejected?: boolean;
+  landSize: number;
 }
 
 export interface IPropertySellDoc extends IPropertySell, Document {}
@@ -53,6 +54,7 @@ export class PropertySell {
             // imageUrl
           },
         ],
+        landSize: { type: Number },
         propertyFeatures: {
           noOfBedrooms: { type: Number, required: true },
           additionalFeatures: [{ type: String }],
